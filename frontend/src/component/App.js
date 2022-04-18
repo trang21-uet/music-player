@@ -20,25 +20,6 @@ const myTheme = {
   },
 };
 
-const ProfileHeader = () => {
-  return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}>
-      <Text style={{fontSize: 18}}>Thông tin tài khoản</Text>
-      <Pressable
-        size={25}
-        style={{position: 'absolute', right: 90}}
-        icon="settings-outline"
-        onPress={() => {}}
-      />
-    </View>
-  );
-};
-
 export default function App() {
   return (
     <NavigationContainer theme={myTheme}>
@@ -53,15 +34,6 @@ export default function App() {
             }}>
             <Stack.Screen name="MainScreen" component={MainScreen} />
             <Stack.Screen name="Player" component={Player} />
-            <Stack.Screen
-              name="Profile"
-              component={Profile}
-              options={{
-                headerShown: true,
-                headerStyle: {backgroundColor: '#313139'},
-                headerTitle: () => <ProfileHeader />,
-              }}
-            />
             <Stack.Screen
               name="PlayerMenu"
               component={PlayerMenu}

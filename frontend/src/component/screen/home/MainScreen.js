@@ -3,9 +3,10 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {useRoute} from '@react-navigation/native';
 import {usePlayerContext} from './AppProvider';
 import TrackPlayer, {Capability} from 'react-native-track-player';
-import {Home, Explore} from './index';
+import {Home, Explore, Ranking, Profile} from './index';
 import NavigationBar from '../../shared/NavigationBar';
 import {PlayerWidget} from '../player/Player';
+import ProfileHeader from './profile/ProfileHeader';
 
 const Tab = createNativeStackNavigator();
 
@@ -56,6 +57,16 @@ export default function MainScreen() {
       <Tab.Navigator screenOptions={{headerShown: false}}>
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Explore" component={Explore} />
+        <Tab.Screen name="Ranking" component={Ranking} />
+        <Tab.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            headerShown: true,
+            headerStyle: {backgroundColor: '#313139'},
+            headerTitle: () => <ProfileHeader />,
+          }}
+        />
       </Tab.Navigator>
       <PlayerWidget />
       <NavigationBar route={route.name} />
