@@ -1,8 +1,10 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, Text} from 'react-native';
 import Pressable from '../../../shared/Pressable';
 
 export default function ProfileHeader() {
+  const navigation = useNavigation();
   return (
     <View
       style={{
@@ -15,7 +17,7 @@ export default function ProfileHeader() {
         size={25}
         style={{position: 'absolute', right: 90}}
         icon="settings-outline"
-        onPress={() => {}}
+        onPress={() => navigation.navigate('Setting')}
       />
     </View>
   );

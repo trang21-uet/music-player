@@ -13,7 +13,7 @@ const Tab = createNativeStackNavigator();
 export default function MainScreen() {
   const route = useRoute();
   const playerContext = usePlayerContext();
-  const skipTo = async index => await TrackPlayer.skip(index);
+  // const skipTo = async index => await TrackPlayer.skip(index);
   const setUpPlayer = async () => {
     try {
       await TrackPlayer.setupPlayer();
@@ -49,7 +49,7 @@ export default function MainScreen() {
 
   useEffect(() => {
     setUpPlayer();
-    skipTo(0);
+    // skipTo(0);
     return () => TrackPlayer.destroy();
   }, []);
   return (

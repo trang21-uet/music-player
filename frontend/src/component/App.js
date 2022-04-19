@@ -1,6 +1,6 @@
 import React from 'react';
-import {StatusBar, View, Text} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
+import {StatusBar} from 'react-native';
+import {NavigationContainer, DarkTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider} from './screen/auth/AuthProvider';
 import MainScreen from './screen/home/MainScreen';
@@ -8,12 +8,12 @@ import AuthScreen from './screen/auth/AuthScreen';
 import Player from './screen/player/Player';
 import PlayerMenu from './screen/player/PlayerMenu';
 import {PlayerProvider} from './screen/home/AppProvider';
-import {Profile} from './screen/home';
-import Pressable from './shared/Pressable';
+import Setting from './screen/home/profile/Setting';
 
 const Stack = createNativeStackNavigator();
 
 const myTheme = {
+  dark: true,
   colors: {
     background: '#313141',
     text: '#ccc',
@@ -34,6 +34,14 @@ export default function App() {
             }}>
             <Stack.Screen name="MainScreen" component={MainScreen} />
             <Stack.Screen name="Player" component={Player} />
+            <Stack.Screen
+              name="Setting"
+              component={Setting}
+              options={{
+                headerShown: true,
+                headerStyle: {backgroundColor: '#313139'},
+              }}
+            />
             <Stack.Screen
               name="PlayerMenu"
               component={PlayerMenu}
