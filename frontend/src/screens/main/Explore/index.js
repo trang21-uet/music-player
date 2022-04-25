@@ -1,13 +1,14 @@
 import {View, Text, StyleSheet} from 'react-native';
 import React from 'react';
+import Ranking from './Ranking';
 
-export default function Explore() {
+export const Explore = () => {
   return (
     <View style={styles.container}>
       <Text style={{fontSize: 30}}>Explore</Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -16,3 +17,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export {Ranking};

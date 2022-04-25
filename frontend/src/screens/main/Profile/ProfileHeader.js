@@ -1,7 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {View, Text} from 'react-native';
-import Pressable from '../../../shared/Pressable';
+import {Pressable} from '../../../components';
 
 export default function ProfileHeader() {
   const navigation = useNavigation();

@@ -18,10 +18,10 @@ import TrackPlayer, {
   useTrackPlayerEvents,
 } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
-import Selectable from '../../shared/Selectable';
-import Pressable from '../../shared/Pressable';
+import {Selectable, Pressable} from '../../components';
 import MCicon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {usePlayerContext} from '../home/AppProvider';
+import {usePlayer} from '../../providers';
+import PlayerMenu from './PlayerMenu';
 
 const togglePlayback = async playbackState => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
@@ -40,12 +40,12 @@ export default function Player() {
   const {position, buffered, duration} = useProgress();
   const playbackState = usePlaybackState();
   const [repeat, setRepeat] = useState('off');
-  const playerContext = usePlayerContext();
+  const player = usePlayer();
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
       const track = await TrackPlayer.getTrack(event.nextTrack);
-      playerContext.setTrack(track);
+      player.setTrack(track);
     }
   });
 
@@ -93,13 +93,13 @@ export default function Player() {
         <View style={[styles.textContainer, {bottom: -60}]}>
           <ScrollView horizontal={true}>
             <Text numberOfLines={1} style={[styles.songTitle]}>
-              {playerContext.track.title}
+              {player.track.title}
             </Text>
           </ScrollView>
         </View>
         <View style={[styles.textContainer, {bottom: -95}]}>
           <Text numberOfLines={1} style={styles.songAuthor}>
-            {playerContext.track.artist}
+            {player.track.artist}
           </Text>
         </View>
       </View>
@@ -171,15 +171,15 @@ export default function Player() {
   );
 }
 
-const PlayerWidget = () => {
+export const PlayerWidget = () => {
   const playbackState = usePlaybackState();
-  const playerContext = usePlayerContext();
+  const player = usePlayer();
   const navigation = useNavigation();
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
       const track = await TrackPlayer.getTrack(event.nextTrack);
-      playerContext.setTrack(track);
+      player.setTrack(track);
     }
   });
 
@@ -200,10 +200,10 @@ const PlayerWidget = () => {
           justifyContent: 'center',
         }}>
         <Text numberOfLines={1} style={{fontSize: 16, fontWeight: '600'}}>
-          {playerContext.track.title}
+          {player.track.title}
         </Text>
         <Text numberOfLines={1} style={{fontSize: 14, fontWeight: '300'}}>
-          {playerContext.track.artist}
+          {player.track.artist}
         </Text>
       </View>
       <View
@@ -230,8 +230,6 @@ const PlayerWidget = () => {
     </TouchableOpacity>
   );
 };
-
-export {PlayerWidget};
 
 const styles = StyleSheet.create({
   container: {
@@ -319,3 +317,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
+
+export {PlayerMenu};

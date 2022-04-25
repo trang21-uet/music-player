@@ -41,7 +41,7 @@ export default function AuthScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../../assets/images/logo.png')}
+        source={require('../../assets/images/logo.png')}
         resizeMode="contain"
         style={{width: '100%'}}></Image>
       <View style={styles.inputContainer}>

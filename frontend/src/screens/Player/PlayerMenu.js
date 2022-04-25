@@ -2,7 +2,7 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Pressable from '../../shared/Pressable';
+import {Pressable} from '../../components';
 
 export default function PlayerMenu() {
   const navigation = useNavigation();

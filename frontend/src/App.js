@@ -1,14 +1,10 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {StatusBar} from 'react-native';
-import {NavigationContainer, DarkTheme} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {AuthProvider} from './screen/auth/AuthProvider';
-import MainScreen from './screen/home/MainScreen';
-import AuthScreen from './screen/auth/AuthScreen';
-import Player from './screen/player/Player';
-import PlayerMenu from './screen/player/PlayerMenu';
-import {PlayerProvider} from './screen/home/AppProvider';
-import Setting from './screen/home/profile/Setting';
+import TrackPlayer, {Capability} from 'react-native-track-player';
+import {MainScreen, AuthScreen, Setting, Player, PlayerMenu} from './screens';
+import {AuthProvider, PlayerProvider, usePlayer} from './providers';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +17,45 @@ const myTheme = {
 };
 
 export default function App() {
+  const player = usePlayer();
+  const setUpPlayer = async () => {
+    try {
+      await TrackPlayer.setupPlayer();
+
+      await TrackPlayer.updateOptions({
+        stopWithApp: false,
+        capabilities: [
+          Capability.Play,
+          Capability.Pause,
+          Capability.SkipToNext,
+          Capability.SkipToPrevious,
+          Capability.Stop,
+        ],
+        compactCapabilities: [
+          Capability.Play,
+          Capability.Pause,
+          Capability.SkipToNext,
+          Capability.SkipToPrevious,
+        ],
+        notificationCapabilities: [
+          Capability.Play,
+          Capability.Pause,
+          Capability.SkipToNext,
+          Capability.SkipToPrevious,
+          Capability.Stop,
+        ],
+      });
+      await TrackPlayer.add(player.tracks);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    setUpPlayer();
+    return () => TrackPlayer.destroy();
+  }, []);
+
   return (
     <NavigationContainer theme={myTheme}>
       <AuthProvider>
