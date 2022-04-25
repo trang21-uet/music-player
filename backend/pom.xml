@@ -14,7 +14,6 @@
         <module>api</module>
         <module>data</module>
         <module>local-storage-service</module>
-        <module>resource</module>
         <module>cloud-storage-service</module>
     </modules>
 
@@ -69,6 +68,7 @@
             <artifactId>jooq</artifactId>
             <version>3.16.5</version>
         </dependency>
+
 
     </dependencies>
 
