@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public interface ILocalFileStorageService {
     void init();
-    void save(MultipartFile file);
+    void save(MultipartFile file, String ownerId);
     Resource load(String filename);
     void deleteAll();
     Stream<Path> loadAll();

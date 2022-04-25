@@ -1,14 +1,12 @@
 package me.application.music.controller;
 
 import me.application.music.local.model.FileInfo;
+import me.application.music.music_application.tables.pojos.Song;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import me.application.music.local.service.LocalFileStorageServiceImpl;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
@@ -23,7 +21,7 @@ public class SongController {
     @Autowired private LocalFileStorageServiceImpl localFileStorageService;
 
     @GetMapping("songs")
-    public ResponseEntity<List<FileInfo>> getAllFileNames() {
+    public ResponseEntity<List<Song>> getAllFileNames() {
         return ResponseEntity.ok(localFileStorageService.getFileInfos(MvcUriComponentsBuilder
                 .fromMethodName(this.getClass(), "getAllFileNames")));
     }
@@ -37,8 +35,8 @@ public class SongController {
     }
 
     @PostMapping("upload")
-    public ResponseEntity<String> uploadSong(MultipartFile file) {
-        localFileStorageService.save(file);
+    public ResponseEntity<String> uploadSong(@RequestParam MultipartFile file, @RequestParam String ownerId) {
+        localFileStorageService.save(file, ownerId);
         return ResponseEntity.ok("Upload Success");
     }
 }
