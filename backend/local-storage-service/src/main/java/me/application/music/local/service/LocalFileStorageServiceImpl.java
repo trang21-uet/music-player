@@ -86,7 +86,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     public List<FileInfo> getFileInfos(UriComponentsBuilder methodUrl) {
         return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(path -> {
             String fileName = path.getFileName().toString();
-            String url = methodUrl.uri(path.toUri()).build().toString();
+            String url = methodUrl.pathSegment(fileName).build().encode().toString();
 
 
             try {
