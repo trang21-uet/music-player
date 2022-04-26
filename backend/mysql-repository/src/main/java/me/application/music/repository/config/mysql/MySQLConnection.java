@@ -22,7 +22,8 @@ public class MySQLConnection {
     @Bean
     public Connection getConnection() {
         try {
-            return DriverManager.getConnection(url, userName, password);
+            Connection connection = DriverManager.getConnection(url, userName, password);
+            return connection;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

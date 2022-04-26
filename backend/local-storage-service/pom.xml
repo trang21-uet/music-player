@@ -18,11 +18,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>me.application.music</groupId>
-            <artifactId>resource</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-parsers -->
         <dependency>
@@ -46,6 +41,17 @@
             <version>2.3.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>me.application.music</groupId>
+            <artifactId>data</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.application.music</groupId>
+            <artifactId>mysql-repository</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

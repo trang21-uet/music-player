@@ -14,7 +14,6 @@
         <module>api</module>
         <module>data</module>
         <module>local-storage-service</module>
-        <module>resource</module>
         <module>cloud-storage-service</module>
     </modules>
 
@@ -70,12 +69,6 @@
             <version>3.16.5</version>
         </dependency>
 
-	<!-- https://mvnrepository.com/artifact/org.codehaus.mojo/exec-maven-plugin -->
-	<dependency>
-	    <groupId>org.codehaus.mojo</groupId>
-	    <artifactId>exec-maven-plugin</artifactId>
-	    <version>3.0.0</version>
-	</dependency>
 
     </dependencies>
 
