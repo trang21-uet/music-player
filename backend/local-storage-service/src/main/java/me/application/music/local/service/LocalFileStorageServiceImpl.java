@@ -14,10 +14,16 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
+import java.awt.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +67,8 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
             song.setTitle(metadata.get("dc:title"));
             song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
             song.setNumListened(0L);
+
+            Image icn=((ImageIcon) FileSystemView.getFileSystemView().getSystemIcon(new File(path.toString()))).getImage();
             songRepository.createOne(song);
 
         } catch (Exception e) {
@@ -102,7 +110,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
 
         List<Song> songs = songRepository.findAll();
         songs.forEach(song -> {
-            song.setUrl(methodUrl.pathSegment(song.getFileName()).build().encode().toString());
+            song.setUrl(UriComponentsBuilder.fromUri(methodUrl.build().toUri()).pathSegment(song.getUrl()).build().encode().toString());
         });
 
         return songs;
