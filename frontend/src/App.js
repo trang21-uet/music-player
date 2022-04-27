@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {StatusBar} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import TrackPlayer, {Capability} from 'react-native-track-player';
 import {MainScreen, AuthScreen, Setting, Player, PlayerMenu} from './screens';
-import {AuthProvider, PlayerProvider, usePlayer} from './providers';
+import {AuthProvider, PlayerProvider} from './providers';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,45 +16,6 @@ const myTheme = {
 };
 
 export default function App() {
-  const player = usePlayer();
-  const setUpPlayer = async () => {
-    try {
-      await TrackPlayer.setupPlayer();
-
-      await TrackPlayer.updateOptions({
-        stopWithApp: false,
-        capabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.Stop,
-        ],
-        compactCapabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-        ],
-        notificationCapabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.Stop,
-        ],
-      });
-      await TrackPlayer.add(player.tracks);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    setUpPlayer();
-    return () => TrackPlayer.destroy();
-  }, []);
-
   return (
     <NavigationContainer theme={myTheme}>
       <AuthProvider>

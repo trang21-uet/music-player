@@ -3,20 +3,13 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Home from './Home';
 import {Explore, Ranking} from './Explore';
 import Profile, {ProfileHeader} from './Profile';
-import {Loading, NavigationBar} from '../../components';
+import {NavigationBar} from '../../components';
 import {PlayerWidget} from '../Player';
-import {usePlayer} from '../../providers';
 
 const Tab = createNativeStackNavigator();
 
 export default function MainScreen() {
-  const player = usePlayer();
-  useEffect(() => {
-    player.getTracks();
-  }, []);
-  return player.loading ? (
-    <Loading />
-  ) : (
+  return (
     <>
       <Tab.Navigator screenOptions={{headerShown: false}}>
         <Tab.Screen name="Home" component={Home} />
