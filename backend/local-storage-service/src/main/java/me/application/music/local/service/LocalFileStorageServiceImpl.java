@@ -1,7 +1,6 @@
 package me.application.music.local.service;
 
 import lombok.SneakyThrows;
-import me.application.music.local.model.FileInfo;
 import me.application.music.music_application.tables.pojos.Song;
 import me.application.music.repository.impl.SongRepositoryImpl;
 import org.apache.tika.metadata.Metadata;
@@ -14,16 +13,15 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,7 +66,16 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
             song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
             song.setNumListened(0L);
 
-            Image icn=((ImageIcon) FileSystemView.getFileSystemView().getSystemIcon(new File(path.toString()))).getImage();
+//            Image icon = ((ImageIcon) FileSystemView.getFileSystemView().getSystemIcon(path.toFile())).getImage();
+//
+//            ImageInputStream imageInputStream = ImageIO.createImageInputStream(icon);
+////            imageInputStream.readByte();
+//
+////            Blob blob = new Blob(FileSystemView.getFileSystemView().getSystemIcon(path.toFile()).);
+//
+//            byte[] coverImage = Files.readAllBytes((Path) imageInputStream);
+//
+//            song.setCoverImage(coverImage);
             songRepository.createOne(song);
 
         } catch (Exception e) {
