@@ -10,6 +10,7 @@ buildscript {
     }
     repositories {
         google()
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -37,6 +38,11 @@ allprojects {
             }
         }
         google()
+        jcenter() {
+            content {
+                includeGroup("com.google.android.exoplayer")
+            }
+        }
         maven { url 'https://www.jitpack.io' }
     }
 }
