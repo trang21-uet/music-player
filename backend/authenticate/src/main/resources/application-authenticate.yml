@@ -1,0 +1,4 @@
+bezkoder:
+  app:
+    jwtSecret: HAISONDEPTRAIVAICALON
+    jwtExpirationMs: 86400000

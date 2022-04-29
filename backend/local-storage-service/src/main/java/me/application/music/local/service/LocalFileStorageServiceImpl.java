@@ -7,6 +7,10 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.mp3.Mp3Parser;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.TagException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -18,10 +22,9 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +41,7 @@ import java.util.stream.Stream;
 @Service
 public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
 
-    private final Path root = Paths.get("songs");
+    private final Path root = Paths.get("resources");
 
     @Autowired private SongRepositoryImpl songRepository;
 
@@ -52,30 +55,12 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     }
 
     @Override
-    public void save(MultipartFile file, String ownerId) {
+    public void save(MultipartFile file, String ownerId, String region) {
         try {
-            Path path = this.root.resolve(Objects.requireNonNull(file.getOriginalFilename()));
+            Path path = this.root.resolve("songs/" + Objects.requireNonNull(file.getOriginalFilename()));
             Files.copy(file.getInputStream(), path);
-            Map<String, String> metadata = this.getFileMetadata(path);
-            Song song = new Song();
-            song.setFileName(path.getFileName().toString());
-            song.setArtist(metadata.get("xmpDM:artist"));
-            song.setUrl(path.getFileName().toString());
-            song.setOwnerId(Long.valueOf(ownerId));
-            song.setTitle(metadata.get("dc:title"));
-            song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
-            song.setNumListened(0L);
+            Song song = createMetadataSong(ownerId, region, path);
 
-//            Image icon = ((ImageIcon) FileSystemView.getFileSystemView().getSystemIcon(path.toFile())).getImage();
-//
-//            ImageInputStream imageInputStream = ImageIO.createImageInputStream(icon);
-////            imageInputStream.readByte();
-//
-////            Blob blob = new Blob(FileSystemView.getFileSystemView().getSystemIcon(path.toFile()).);
-//
-//            byte[] coverImage = Files.readAllBytes((Path) imageInputStream);
-//
-//            song.setCoverImage(coverImage);
             songRepository.createOne(song);
 
         } catch (Exception e) {
@@ -83,10 +68,72 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         }
     }
 
+    private Song createMetadataSong(String ownerId, String region, Path path) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+        Map<String, String> metadata = this.getFileMetadata(path);
+        Song song = new Song();
+        song.setFileName(path.getFileName().toString());
+        song.setArtist(metadata.get("xmpDM:artist"));
+        song.setUrl(path.getFileName().toString());
+        song.setOwnerId(Long.valueOf(ownerId));
+        song.setTitle(metadata.get("dc:title"));
+        song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
+        song.setNumListened(0L);
+        song.setGenre(metadata.get("xmpDM:genre"));//chu y thay doi
+        song.setRegion(region);
+        song.setAlbum(metadata.get("xmpDM:album"));
+        song.setNumTrack(Long.valueOf(metadata.get("xmpDM:trackNumber")));
+
+        createImage(path, song);
+        return song;
+    }
+
+    private void createImage(Path path, Song song) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+        MP3File mp3 = new MP3File(path.toFile());
+        BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
+
+        String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
+        ImageIO.write(icon, "png", new File(imageUrl));
+        song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
+    }
+
+    // convert Image to BufferedImage
+    public static BufferedImage convertToBufferedImage(Image img) {
+
+        if (img instanceof BufferedImage) {
+            return (BufferedImage) img;
+        }
+
+        // Create a buffered image with transparency
+        BufferedImage bi = new BufferedImage(
+                img.getWidth(null), img.getHeight(null),
+                BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D graphics2D = bi.createGraphics();
+        graphics2D.drawImage(img, 0, 0, null);
+        graphics2D.dispose();
+
+        return bi;
+    }
+
     @Override
-    public Resource load(String filename) {
+    public Resource loadSong(String filename) {
         try {
-            Path file = root.resolve(filename);
+            Path file = root.resolve("songs/" + filename);
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Resource loadImage(String imageName) {
+        try {
+            Path file = root.resolve("covers/" + imageName);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
@@ -100,13 +147,13 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
 
     @Override
     public void deleteAll() {
-        FileSystemUtils.deleteRecursively(root.toFile());
+        FileSystemUtils.deleteRecursively(Paths.get(this.root + "/songs").toFile());
     }
 
     @Override
     public Stream<Path> loadAll() {
         try {
-            return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
+            return Files.walk(Paths.get(this.root.toString() + "/songs"), 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
@@ -118,6 +165,14 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         List<Song> songs = songRepository.findAll();
         songs.forEach(song -> {
             song.setUrl(UriComponentsBuilder.fromUri(methodUrl.build().toUri()).pathSegment(song.getUrl()).build().encode().toString());
+            song.setCoverImage(UriComponentsBuilder.fromUriString(
+                    methodUrl.build().getScheme()
+                            + "://"
+                            + methodUrl.build().getHost()
+                            + ":"
+                            + methodUrl.build().getPort()
+                            + "/images")
+                        .pathSegment(song.getCoverImage()).build().encode().toString());
         });
 
         return songs;
@@ -140,4 +195,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         }
     }
 
+    public Integer incNumListened(String id) {
+        return songRepository.incNumListened(id);
+    }
 }
