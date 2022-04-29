@@ -40,8 +40,16 @@ public class SongController {
     }
 
     @PostMapping("upload")
-    public ResponseEntity<String> uploadSong(@RequestParam MultipartFile file, @RequestParam String ownerId) {
-        localFileStorageService.save(file, ownerId);
+    public ResponseEntity<String> uploadSong(@RequestParam MultipartFile file,
+                                             @RequestParam String ownerId,
+                                             @RequestParam(defaultValue = "null") String region) {
+        localFileStorageService.save(file, ownerId, region);
         return ResponseEntity.ok("Upload Success");
+    }
+
+    @PostMapping("songs/incNumListened")
+    public ResponseEntity<String> incNumListened(@RequestParam String id) {
+        localFileStorageService.incNumListened(id);
+        return ResponseEntity.ok("Increased Success");
     }
 }

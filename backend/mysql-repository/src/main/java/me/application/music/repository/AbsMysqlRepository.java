@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 
 public abstract class AbsMysqlRepository<P, R extends TableRecordImpl<R>> {
 
-    private R record;
-    private Class<P> pClass;
+    protected R record;
+    protected Class<P> pClass;
 
-    @Autowired private DSLContext dslContext;
+    @Autowired protected DSLContext dslContext;
 
     public abstract TableImpl<R> getTable();
 

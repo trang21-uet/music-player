@@ -14,4 +14,11 @@ public class SongRepositoryImpl extends AbsMysqlRepository<Song, SongRecord> {
     public TableImpl<SongRecord> getTable() {
         return SONG;
     }
+
+    public Integer incNumListened(String id) {
+        return dslContext.update(this.getTable())
+                .set(SONG.NUM_LISTENED, SONG.NUM_LISTENED.add(1))
+                .where(SONG.ID.eq(Long.valueOf(id)))
+                .execute();
+    }
 }

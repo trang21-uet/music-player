@@ -7,7 +7,10 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.mp3.Mp3Parser;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.TagException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -52,32 +55,45 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     }
 
     @Override
-    public void save(MultipartFile file, String ownerId) {
+    public void save(MultipartFile file, String ownerId, String region) {
         try {
             Path path = this.root.resolve("songs/" + Objects.requireNonNull(file.getOriginalFilename()));
             Files.copy(file.getInputStream(), path);
-            Map<String, String> metadata = this.getFileMetadata(path);
-            Song song = new Song();
-            song.setFileName(path.getFileName().toString());
-            song.setArtist(metadata.get("xmpDM:artist"));
-            song.setUrl(path.getFileName().toString());
-            song.setOwnerId(Long.valueOf(ownerId));
-            song.setTitle(metadata.get("dc:title"));
-            song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
-            song.setNumListened(0L);
-
-            MP3File mp3 = new MP3File(path.toFile());
-            BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
-
-            String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
-            ImageIO.write(icon, "png", new File(imageUrl));
-            song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
+            Song song = createMetadataSong(ownerId, region, path);
 
             songRepository.createOne(song);
 
         } catch (Exception e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
+    }
+
+    private Song createMetadataSong(String ownerId, String region, Path path) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+        Map<String, String> metadata = this.getFileMetadata(path);
+        Song song = new Song();
+        song.setFileName(path.getFileName().toString());
+        song.setArtist(metadata.get("xmpDM:artist"));
+        song.setUrl(path.getFileName().toString());
+        song.setOwnerId(Long.valueOf(ownerId));
+        song.setTitle(metadata.get("dc:title"));
+        song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
+        song.setNumListened(0L);
+        song.setGenre(metadata.get("xmpDM:genre"));//chu y thay doi
+        song.setRegion(region);
+        song.setAlbum(metadata.get("xmpDM:album"));
+        song.setNumTrack(Long.valueOf(metadata.get("xmpDM:trackNumber")));
+
+        createImage(path, song);
+        return song;
+    }
+
+    private void createImage(Path path, Song song) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+        MP3File mp3 = new MP3File(path.toFile());
+        BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
+
+        String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
+        ImageIO.write(icon, "png", new File(imageUrl));
+        song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
     }
 
     // convert Image to BufferedImage
@@ -179,4 +195,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         }
     }
 
+    public Integer incNumListened(String id) {
+        return songRepository.incNumListened(id);
+    }
 }

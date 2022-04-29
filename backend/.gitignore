@@ -10,4 +10,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-songs/
+*.mp3
+*.png
+pom.xml
