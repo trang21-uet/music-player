@@ -14,4 +14,11 @@ public class AuthenticateRepositoryImpl extends AbsMysqlRepository<Authenticate,
     public TableImpl<AuthenticateRecord> getTable() {
         return AUTHENTICATE;
     }
+
+    public Authenticate findByUsername(String userName) {
+        return dslContext.select()
+                .from(this.getTable())
+                .where(AUTHENTICATE.USERNAME.eq(userName))
+                .fetchOneInto(this.pClass);
+    }
 }
