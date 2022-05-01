@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: repository
+    include: repository,authenticate
   servlet:
     multipart:
       max-file-size: 10MB
