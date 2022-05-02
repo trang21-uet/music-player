@@ -53,8 +53,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/songs/{id}",
                         "/images",
                         "/images/{id}",
-                        "/signup").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
-                .antMatchers("/favourite", "/upload").hasAnyRole("user", "admin")
+                        "/signup",
+                        "/upload").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
+                .antMatchers("/favourite").hasAnyRole("user")
                 .anyRequest().authenticated() // Tất cả các request khác đều cần phải xác thực mới được truy cập
                 .and()
                 .csrf().disable();

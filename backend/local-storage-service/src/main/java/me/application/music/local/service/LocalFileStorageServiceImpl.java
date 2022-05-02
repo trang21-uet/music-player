@@ -82,6 +82,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         song.setRegion(region);
         song.setAlbum(metadata.get("xmpDM:album"));
         song.setNumTrack(Long.valueOf(metadata.get("xmpDM:trackNumber")));
+        song.setIsChecked(false);
 
         createImage(path, song);
         return song;
