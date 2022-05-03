@@ -4,6 +4,7 @@ import me.application.music.authenticate.filter.JwtAuthenticationFilter;
 import me.application.music.authenticate.service.AuthenticateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -48,15 +49,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors() // Ngăn chặn request từ một domain khác
                 .and()
                 .authorizeRequests()
-                .antMatchers("/login",
-                        "/songs",
-                        "/songs/{id}",
-                        "/images",
-                        "/images/{id}",
-                        "/signup",
-                        "/upload").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
-                .antMatchers("/favourite").hasAnyRole("user")
-                .anyRequest().authenticated() // Tất cả các request khác đều cần phải xác thực mới được truy cập
+                .antMatchers("/favourite",
+                        "/upload").hasAuthority("user")
+                .antMatchers("/songs/check",
+                        "/users/{id}",
+                        "/role").hasAuthority("admin")
+                .antMatchers(HttpMethod.GET, "users").hasAuthority("admin")// Tất cả các request khác đều cần phải xác thực mới được truy cập
+                .antMatchers(HttpMethod.PUT, "users").hasAnyAuthority("user", "admin")
+                .anyRequest().permitAll()
                 .and()
                 .csrf().disable();
 
