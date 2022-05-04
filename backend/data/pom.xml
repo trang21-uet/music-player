@@ -56,6 +56,13 @@
                         <database>
                             <name>org.jooq.meta.mysql.MySQLDatabase</name>
                             <includes>music_application.*</includes>
+
+                            <forcedTypes>
+                                <forcedType>
+                                    <name>BOOLEAN</name>
+                                    <includeTypes>(?i:TINYINT)</includeTypes>
+                                </forcedType>
+                            </forcedTypes>
                         </database>
 
                         <generate>

@@ -14,4 +14,18 @@ public class UserReposotoryImpl extends AbsMysqlRepository<User, UserRecord> {
     public TableImpl getTable() {
         return USER;
     }
+
+    public User findByUsername(String userName) {
+        return dslContext.select()
+                .from(this.getTable())
+                .where(USER.USERNAME.eq(userName))
+                .fetchOneInto(this.pClass);
+    }
+
+    public Integer setRole(String id, Long roleId) {
+        return dslContext.update(this.getTable())
+                .set(USER.ROLE_ID, roleId)
+                .where(USER.ID.eq(Long.valueOf(id)))
+                .execute();
+    }
 }

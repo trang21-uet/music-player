@@ -82,6 +82,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         song.setRegion(region);
         song.setAlbum(metadata.get("xmpDM:album"));
         song.setNumTrack(Long.valueOf(metadata.get("xmpDM:trackNumber")));
+        song.setIsChecked(false);
 
         createImage(path, song);
         return song;
@@ -96,35 +97,20 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
     }
 
-    // convert Image to BufferedImage
-    public static BufferedImage convertToBufferedImage(Image img) {
-
-        if (img instanceof BufferedImage) {
-            return (BufferedImage) img;
-        }
-
-        // Create a buffered image with transparency
-        BufferedImage bi = new BufferedImage(
-                img.getWidth(null), img.getHeight(null),
-                BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D graphics2D = bi.createGraphics();
-        graphics2D.drawImage(img, 0, 0, null);
-        graphics2D.dispose();
-
-        return bi;
-    }
-
     @Override
     public Resource loadSong(String filename) {
         try {
-            Path file = root.resolve("songs/" + filename);
-            Resource resource = new UrlResource(file.toUri());
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Could not read the file!");
+            Song song = songRepository.getSongsByName(filename, 0, 1).get(0);
+            if(song.getIsChecked()) {
+                Path file = root.resolve("songs/" + filename);
+                Resource resource = new UrlResource(file.toUri());
+                if (resource.exists() || resource.isReadable()) {
+                    return resource;
+                } else {
+                    throw new RuntimeException("Could not read the file!");
+                }
             }
+            return null;
         } catch (MalformedURLException e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }

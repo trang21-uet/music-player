@@ -1,4 +1,4 @@
-bezkoder:
-  app:
+spring:
+  jwt:
     jwtSecret: HAISONDEPTRAIVAICALON
     jwtExpirationMs: 86400000
