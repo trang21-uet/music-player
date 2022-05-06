@@ -92,9 +92,11 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         MP3File mp3 = new MP3File(path.toFile());
         BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
 
-        String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
-        ImageIO.write(icon, "png", new File(imageUrl));
-        song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
+        if(icon != null) {
+            String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
+            ImageIO.write(icon, "png", new File(imageUrl));
+            song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
+        }
     }
 
     @Override
@@ -184,4 +186,5 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     public Integer incNumListened(String id) {
         return songRepository.incNumListened(id);
     }
+
 }

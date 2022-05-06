@@ -93,4 +93,9 @@ public class SongController {
     public ResponseEntity<Map<String, List<Song>>> getTopSongsByRegions(@RequestAttribute List<String> regions) {
         return ResponseEntity.ok(songService.getTopSongsByRegions(regions));
     }
+
+    @GetMapping("/songs/uncheckedSongs")
+    public ResponseEntity<List<Song>> getUnCheckedSongs() {
+        return ResponseEntity.ok(songService.getUnCheckedSongs());
+    }
 }

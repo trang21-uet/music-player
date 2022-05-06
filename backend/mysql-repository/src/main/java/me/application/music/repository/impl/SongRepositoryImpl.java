@@ -101,4 +101,11 @@ public class SongRepositoryImpl extends AbsMysqlRepository<Song, SongRecord> {
         });
         return songMap;
     }
+
+    public List<Song> getUnCheckedSongs() {
+        return dslContext.select()
+                .from(this.getTable())
+                .where(SONG.IS_CHECKED.eq(false))
+                .fetchInto(this.pClass);
+    }
 }
