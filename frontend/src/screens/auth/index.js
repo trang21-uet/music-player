@@ -4,23 +4,29 @@ import {
   StyleSheet,
   TextInput,
   TouchableNativeFeedback,
-  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  ToastAndroid,
+  Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {useAuth} from '../../providers';
 
 const Input = props => {
-  const [value, setValue] = useState();
   const [focus, setFocus] = useState(false);
   return (
     <View style={{width: '100%'}}>
-      <Text style={{fontSize: 20, paddingVertical: 10}}>{props.title}</Text>
+      <Text style={{fontSize: 20, marginTop: 20, marginBottom: 10}}>
+        {props.title}
+      </Text>
       <TextInput
         {...props}
-        placeholderTextColor="#ccc"
-        value={value}
-        onChangeText={setValue}
-        autoComplete={props.type}
+        ref={props.innerRef}
+        placeholderTextColor="#999"
+        value={props.value}
+        onChangeText={value => props.onChangeText(value)}
+        autoCapitalize="none"
         autoCorrect={false}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
@@ -28,7 +34,7 @@ const Input = props => {
           styles.input,
           {
             borderColor: focus ? '#1d8' : '#888',
-            backgroundColor: focus ? '#eee' : '#999',
+            backgroundColor: focus ? '#222' : '#313141',
           },
         ]}
       />
@@ -36,54 +42,80 @@ const Input = props => {
   );
 };
 
-export default function AuthScreen() {
-  const navigation = useNavigation();
+const Form = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+  const submitRef = useRef(null);
+  const auth = useAuth();
+
+  const submit = async () => {
+    const data = {
+      username: username,
+      password: password,
+    };
+    auth.login(JSON.stringify(data));
+  };
+
   return (
-    <View style={styles.container}>
-      <Image
-        source={require('../../assets/images/logo.png')}
-        resizeMode="contain"
-        style={{width: '100%'}}></Image>
-      <View style={styles.inputContainer}>
-        <Input
-          title="Username"
-          placeholder="Enter username"
-          type="username"
-          returnKeyType="next"
-        />
-        <Input
-          title="Password"
-          placeholder="Enter password"
-          type="password"
-          onSubmitEditing={() => navigation.goBack()}
-          secureTextEntry={true}
-        />
-        <TouchableNativeFeedback onPress={() => navigation.goBack()}>
-          <View style={styles.button}>
-            <Text
-              style={{
-                color: '#000',
-                fontSize: 18,
-              }}>
-              GO BACK
-            </Text>
-          </View>
-        </TouchableNativeFeedback>
-      </View>
-    </View>
+    <>
+      <Input
+        innerRef={usernameRef}
+        title="Username"
+        placeholder="Enter username"
+        autoComplete="username"
+        returnKeyType="next"
+        value={username}
+        onChangeText={value => setUsername(value)}
+        onSubmitEditing={() => passwordRef.current.focus()}
+      />
+      <Input
+        innerRef={passwordRef}
+        title="Password"
+        placeholder="Enter password"
+        autoComplete="password"
+        secureTextEntry={true}
+        value={password}
+        onChangeText={value => setPassword(value)}
+        onSubmitEditing={() => submitRef.current.props.onPress()}
+      />
+      <TouchableNativeFeedback ref={submitRef} onPress={submit}>
+        <View style={styles.button}>
+          <Text
+            style={{
+              color: '#000',
+              fontSize: 18,
+            }}>
+            LOG IN
+          </Text>
+        </View>
+      </TouchableNativeFeedback>
+    </>
+  );
+};
+
+export default function AuthScreen() {
+  return (
+    <KeyboardAvoidingView behavior="height" style={{flex: 1}}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Form />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#313141',
+    padding: 20,
+    justifyContent: 'center',
   },
   input: {
     paddingHorizontal: 15,
     width: '100%',
     height: 50,
-    color: '#333',
+    color: '#ccc',
     fontSize: 16,
     borderWidth: 1,
     borderRadius: 5,
@@ -91,19 +123,10 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     height: 50,
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#5eb',
+    backgroundColor: '#2E8B57',
     marginTop: 20,
     borderRadius: 5,
-  },
-  inputContainer: {
-    position: 'absolute',
-    top: 250,
-    left: 20,
-    right: 20,
-    flex: 1,
-    alignItems: 'center',
   },
 });

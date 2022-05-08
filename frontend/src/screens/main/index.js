@@ -1,8 +1,8 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Home from './Home';
 import {Explore, Ranking} from './Explore';
-import Profile, {ProfileHeader} from './Profile';
+import Profile, {ProfileHeader, Upload, UserInfo} from './Profile';
 import {NavigationBar} from '../../components';
 import {PlayerWidget} from '../Player';
 
@@ -22,6 +22,27 @@ export default function MainScreen() {
             headerShown: true,
             headerStyle: {backgroundColor: '#313139'},
             headerTitle: () => <ProfileHeader />,
+          }}
+        />
+
+        <Tab.Screen
+          name="Upload"
+          component={Upload}
+          options={{
+            headerShown: true,
+            headerStyle: {backgroundColor: '#313139'},
+            animation: 'slide_from_right',
+            title: 'Upload song',
+          }}
+        />
+        <Tab.Screen
+          name="UserInfo"
+          component={UserInfo}
+          options={{
+            headerShown: true,
+            headerStyle: {backgroundColor: '#313139'},
+            animation: 'slide_from_right',
+            title: 'User information',
           }}
         />
       </Tab.Navigator>

@@ -42,8 +42,7 @@ const Button = ({title, icon, selected, setSelected}) => {
       onPress={() => {
         navigation.navigate(title);
         setSelected(title);
-      }}
-      background={TouchableNativeFeedback.Ripple('#2E8B57', false)}>
+      }}>
       <View style={styles.button}>
         <Ionicons
           name={icon}

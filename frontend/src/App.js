@@ -2,7 +2,14 @@ import React from 'react';
 import {StatusBar} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MainScreen, AuthScreen, Setting, Player, PlayerMenu} from './screens';
+import {
+  MainScreen,
+  AuthScreen,
+  Setting,
+  Upload,
+  Player,
+  PlayerMenu,
+} from './screens';
 import {AuthProvider, PlayerProvider} from './providers';
 
 const Stack = createNativeStackNavigator();
@@ -35,6 +42,7 @@ export default function App() {
               options={{
                 headerShown: true,
                 headerStyle: {backgroundColor: '#313139'},
+                animation: 'slide_from_right',
               }}
             />
             <Stack.Screen

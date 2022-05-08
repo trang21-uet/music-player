@@ -1,44 +1,54 @@
 import React, {createContext, useState, useEffect} from 'react';
 import TrackPlayer, {Capability} from 'react-native-track-player';
-import {Loading} from '../../components';
+import {Loading, Error} from '../../components';
 
 const PlayerContext = createContext(null);
 
 const PlayerProvider = ({children}) => {
-  const [tracks, setTracks] = useState();
-  const [track, setTrack] = useState();
-  const [loading, setLoading] = useState(true);
+  const [tracks, setTracks] = useState([]);
+  const [track, setTrack] = useState({});
+  const [status, setStatus] = useState('loading');
 
   const setUpPlayer = async () => {
     try {
-      const response = await fetch('http://192.168.1.20:8080/songs');
-      const data = await response.json();
-      setTracks(data);
-      setTrack(data[0]);
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 10000);
 
-      await TrackPlayer.setupPlayer();
-      await TrackPlayer.updateOptions({
-        stopWithApp: false,
-        capabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.Stop,
-        ],
-        compactCapabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.Stop,
-        ],
+      const response = await fetch('http://localhost:8080/songs', {
+        method: 'GET',
+        signal: controller.signal,
       });
-      await TrackPlayer.add(data);
+      clearTimeout(id);
+      const data = await response.json();
+      if (data.length === 0) {
+        setStatus('No song');
+      } else {
+        setTracks(data);
+        setTrack(data[0]);
+
+        await TrackPlayer.setupPlayer();
+        await TrackPlayer.updateOptions({
+          stopWithApp: false,
+          capabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.SkipToNext,
+            Capability.SkipToPrevious,
+            Capability.Stop,
+          ],
+          compactCapabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.SkipToNext,
+            Capability.SkipToPrevious,
+            Capability.Stop,
+          ],
+        });
+        await TrackPlayer.add(data);
+        setStatus('success');
+      }
     } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+      setStatus(error.message);
     }
   };
 
@@ -48,8 +58,13 @@ const PlayerProvider = ({children}) => {
   }, []);
 
   return (
-    <PlayerContext.Provider value={{tracks, track, setTrack, loading}}>
-      {loading ? <Loading /> : children}
+    <PlayerContext.Provider value={{tracks, track, setTrack}}>
+      {status === 'loading' && <Loading />}
+      {(status === 'Aborted' || status === 'Network request failed') && (
+        <Error status={'Network request failed'} />
+      )}
+      {status === 'No song' && children}
+      {status === 'success' && children}
     </PlayerContext.Provider>
   );
 };

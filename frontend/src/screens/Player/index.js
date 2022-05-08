@@ -2,7 +2,7 @@ import {
   View,
   Text,
   StyleSheet,
-  ImageBackground,
+  Dimensions,
   TouchableOpacity,
   ToastAndroid,
   ScrollView,
@@ -22,6 +22,8 @@ import {Selectable, Pressable} from '../../components';
 import MCicon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {usePlayer} from '../../providers';
 import PlayerMenu from './PlayerMenu';
+
+const {width, height} = Dimensions.get('screen');
 
 const togglePlayback = async playbackState => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
@@ -72,11 +74,6 @@ export default function Player() {
 
   return (
     <View style={styles.container}>
-      {/* <ImageBackground
-        source={require('../../../assets/logo.png')}
-        resizeMode="cover"
-        style={styles.background}
-        imageStyle={{opacity: 0.5}}> */}
       <View style={styles.header}>
         <Pressable
           icon="arrow-back"
@@ -90,21 +87,23 @@ export default function Player() {
         />
       </View>
       <View style={styles.info}>
-        <View style={[styles.textContainer, {bottom: -60}]}>
-          <ScrollView horizontal={true}>
+        <View style={[styles.infoText, {bottom: -60, width: width}]}>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             <Text numberOfLines={1} style={[styles.songTitle]}>
               {player.track.title}
             </Text>
           </ScrollView>
         </View>
-        <View style={[styles.textContainer, {bottom: -95}]}>
-          <Text numberOfLines={1} style={styles.songAuthor}>
-            {player.track.artist}
-          </Text>
+        <View style={[styles.infoText, {bottom: -95}]}>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            <Text numberOfLines={1} style={[styles.songAuthor]}>
+              {player.track.artist}
+            </Text>
+          </ScrollView>
         </View>
       </View>
       <View style={styles.musicControls}>
-        <View style={styles.progressContainer}>
+        <View style={styles.row}>
           <Text style={styles.timeLabel}>
             {new Date(position * 1000).toISOString().substring(14, 19)}
           </Text>
@@ -124,24 +123,20 @@ export default function Player() {
               .substring(14, 19)}
           </Text>
         </View>
-        <View style={styles.row}>
+        <View style={[styles.row, {marginBottom: 0}]}>
           <Selectable
             icon="heart-outline"
-            onPress={() => {
-              ToastAndroid.show('Added to favorites!', ToastAndroid.SHORT);
-            }}
+            alternativeIcon="heart"
+            onPress={() =>
+              ToastAndroid.show('Added to favorites!', ToastAndroid.SHORT)
+            }
           />
           <TouchableOpacity onPress={() => navigation.navigate('PlayerMenu')}>
             <MCicon name="playlist-music" size={30} color="#ccc" />
           </TouchableOpacity>
         </View>
         <View style={styles.row}>
-          <Selectable
-            icon="shuffle"
-            onPress={async () =>
-              console.log('Duration: ', await TrackPlayer.getDuration())
-            }
-          />
+          <Selectable icon="shuffle" onPress={() => null} />
           <Pressable
             icon="play-skip-back"
             onPress={async () => await TrackPlayer.skipToPrevious()}
@@ -166,7 +161,6 @@ export default function Player() {
           </TouchableOpacity>
         </View>
       </View>
-      {/* </ImageBackground> */}
     </View>
   );
 }
@@ -183,7 +177,7 @@ export const PlayerWidget = () => {
     }
   });
 
-  return (
+  return player.tracks.length === 0 ? null : (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate('Player');
@@ -235,32 +229,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  background: {
-    flex: 1,
-    zIndex: 0,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   info: {
     flex: 1,
-    alignItems: 'center',
     position: 'absolute',
     top: 450,
     left: 0,
     right: 0,
   },
-  // artwork: {
-  //   width: 300,
-  //   height: 300,
-  //   backgroundColor: '#ccc',
-  //   marginBottom: 50,
-  // },
-  textContainer: {
-    width: '300%',
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: '2%',
+  },
+  infoText: {
     position: 'absolute',
-    left: 20,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
@@ -283,25 +271,19 @@ const styles = StyleSheet.create({
   },
   musicControls: {
     position: 'absolute',
-    bottom: 40,
-    left: 20,
-    right: 20,
+    bottom: '2%',
+    paddingHorizontal: '5%',
   },
   progressContainer: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: '2%',
+    justifyContent: 'center',
   },
   progressBar: {
-    width: 250,
+    width: '75%',
   },
   timeLabel: {
     color: '#ccc',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
   },
   widget: {
     position: 'absolute',

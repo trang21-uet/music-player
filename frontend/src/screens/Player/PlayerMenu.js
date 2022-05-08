@@ -1,7 +1,7 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {RowOption} from '../../components';
 import {Pressable} from '../../components';
 
 export default function PlayerMenu() {
@@ -18,27 +18,16 @@ export default function PlayerMenu() {
         <Pressable icon="close" onPress={navigation.goBack} />
       </View>
       <View style={styles.container}>
-        <Option icon="heart-outline" title="Add to favorite" />
-        <Option icon="mic" title="Author" />
-        <Option icon="musical-notes" title="Album" />
-        <Option icon="download-outline" title="Download" />
-        <Option icon="share-social-outline" title="Share" />
-        <Option icon="moon-outline" title="Set timer" />
+        <RowOption icon="heart-outline" title="Add to favorite" />
+        <RowOption icon="mic" title="Author" />
+        <RowOption icon="musical-notes" title="Album" />
+        <RowOption icon="download-outline" title="Download" />
+        <RowOption icon="share-social-outline" title="Share" />
+        <RowOption icon="moon-outline" title="Set timer" />
       </View>
     </>
   );
 }
-
-const Option = ({title, onPress, icon}) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={{paddingVertical: 15}}>
-      <View style={{flexDirection: 'row'}}>
-        <Icon name={icon} size={30} color="#ccc" style={{paddingEnd: 20}} />
-        <Text style={{fontSize: 20}}>{title}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {

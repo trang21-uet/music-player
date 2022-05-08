@@ -12,7 +12,7 @@ export default function ProfileHeader() {
         flexDirection: 'row',
         alignItems: 'center',
       }}>
-      <Text style={{fontSize: 18}}>Thông tin tài khoản</Text>
+      <Text style={{fontSize: 18}}>Profile</Text>
       <Pressable
         size={25}
         style={{position: 'absolute', right: 90}}
