@@ -56,4 +56,8 @@ public class SongService {
     public Map<String, List<Song>> getTopSongsByRegions(List<String> regions) {
         return songRepository.getTopSongsByRegions(regions);
     }
+
+    public List<Song> getUnCheckedSongs() {
+        return songRepository.getUnCheckedSongs();
+    }
 }

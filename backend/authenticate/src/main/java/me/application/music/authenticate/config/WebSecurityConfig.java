@@ -54,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/songs/check",
                         "/users/{id}",
                         "/role").hasAuthority("admin")
-                .antMatchers(HttpMethod.GET, "users").hasAuthority("admin")// Tất cả các request khác đều cần phải xác thực mới được truy cập
+                .antMatchers(HttpMethod.GET, "users", "/songs/uncheckedSongs").hasAuthority("admin")// Tất cả các request khác đều cần phải xác thực mới được truy cập
                 .antMatchers(HttpMethod.PUT, "users").hasAnyAuthority("user", "admin")
                 .anyRequest().permitAll()
                 .and()

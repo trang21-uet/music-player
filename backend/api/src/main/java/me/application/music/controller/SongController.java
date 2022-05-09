@@ -62,35 +62,40 @@ public class SongController {
     }
 
     @GetMapping("songs/getSongsByName")
-    public ResponseEntity<List<Song>> getSongsByName(@RequestAttribute String name,
-                                                     @RequestAttribute Integer offset,
-                                                     @RequestAttribute Integer limit) {
+    public ResponseEntity<List<Song>> getSongsByName(@RequestParam String name,
+                                                     @RequestParam Integer offset,
+                                                     @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getSongsByName(name, offset, limit));
     }
 
     @GetMapping("songs/getSongsByArtist")
-    public ResponseEntity<List<Song>> getSongsByArtist(@RequestAttribute String artist,
-                                                     @RequestAttribute Integer offset,
-                                                     @RequestAttribute Integer limit) {
+    public ResponseEntity<List<Song>> getSongsByArtist(@RequestParam String artist,
+                                                     @RequestParam Integer offset,
+                                                     @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getSongsByArtist(artist, offset, limit));
     }
 
     @GetMapping("songs/getSongsByAlbum")
-    public ResponseEntity<List<Song>> getSongsByAlbum(@RequestAttribute String album,
-                                                     @RequestAttribute Integer offset,
-                                                     @RequestAttribute Integer limit) {
+    public ResponseEntity<List<Song>> getSongsByAlbum(@RequestParam String album,
+                                                     @RequestParam Integer offset,
+                                                     @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getSongsByAlbum(album, offset, limit));
     }
 
     @GetMapping("songs/getTopSongsByParam")
-    public ResponseEntity<List<Song>> getTopSongsByParam(@RequestAttribute String param,
-                                                     @RequestAttribute Integer offset,
-                                                     @RequestAttribute Integer limit) {
+    public ResponseEntity<List<Song>> getTopSongsByParam(@RequestParam String param,
+                                                     @RequestParam Integer offset,
+                                                     @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getTopSongsByParam(param, offset, limit));
     }
 
     @GetMapping("songs/getTopSongsByRegions")
-    public ResponseEntity<Map<String, List<Song>>> getTopSongsByRegions(@RequestAttribute List<String> regions) {
+    public ResponseEntity<Map<String, List<Song>>> getTopSongsByRegions(@RequestParam List<String> regions) {
         return ResponseEntity.ok(songService.getTopSongsByRegions(regions));
+    }
+
+    @GetMapping("/songs/uncheckedSongs")
+    public ResponseEntity<List<Song>> getUnCheckedSongs() {
+        return ResponseEntity.ok(songService.getUnCheckedSongs());
     }
 }
