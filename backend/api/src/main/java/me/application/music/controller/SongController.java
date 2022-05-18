@@ -98,4 +98,11 @@ public class SongController {
     public ResponseEntity<List<Song>> getUnCheckedSongs() {
         return ResponseEntity.ok(songService.getUnCheckedSongs());
     }
+
+    @GetMapping("/songs/getMapTopSongsByParam")
+    public ResponseEntity<Map<String, List<Song>>> getMapTopSongsByParam(@RequestParam String param,
+                                                                         @RequestParam Integer offset,
+                                                                         @RequestParam Integer limit) {
+        return ResponseEntity.ok(songService.getMapTopSongsByParam(param, offset, limit));
+    }
 }
