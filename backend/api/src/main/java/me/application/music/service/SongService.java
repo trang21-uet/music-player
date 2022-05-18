@@ -5,6 +5,7 @@ import me.application.music.repository.impl.SongRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,5 +60,13 @@ public class SongService {
 
     public List<Song> getUnCheckedSongs() {
         return songRepository.getUnCheckedSongs();
+    }
+
+    public Map<String, List<Song>> getMapTopSongsByParam(String param, int offset, int limit) {
+        Map<String, List<Song>> songMap = new HashMap<>();
+        songMap.put("artist", this.getSongsByArtist(param, offset, limit));
+        songMap.put("name", this.getSongsByName(param, offset, limit));
+        songMap.put("album", this.getSongsByAlbum(param, offset, limit));
+        return songMap;
     }
 }
