@@ -6,7 +6,6 @@ import me.application.music.repository.AbsMysqlRepository;
 import org.jooq.impl.TableImpl;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,8 +1,11 @@
 package me.application.music.controller;
 
+import me.application.music.dto.UserRequest;
 import me.application.music.music_application.tables.pojos.User;
 import me.application.music.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +29,7 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<Integer> updateUser(@RequestBody User user) {
+    public ResponseEntity<Integer> updateUser(@RequestBody UserRequest user) {
         return ResponseEntity.ok(userService.update(user));
     }
 
@@ -38,6 +41,14 @@ public class UserController {
     @PutMapping("role")
     public ResponseEntity<Integer> setRoleUser(@RequestParam String id, @RequestParam Long roleId) {
         return ResponseEntity.ok(userService.setRole(id, roleId));
+    }
+
+    @GetMapping("avatars/{avatar}")
+    public ResponseEntity<Resource> getAvatar(@PathVariable String avatar) {
+        Resource file = userService.loadImage(avatar);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
 }
