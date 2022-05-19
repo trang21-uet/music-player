@@ -22,7 +22,6 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,16 +71,16 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         Map<String, String> metadata = this.getFileMetadata(path);
         Song song = new Song();
         song.setFileName(path.getFileName().toString());
-        song.setArtist(metadata.get("xmpDM:artist"));
+        song.setArtist(metadata.getOrDefault("xmpDM:artist", null));
         song.setUrl(path.getFileName().toString());
         song.setOwnerId(Long.valueOf(ownerId));
-        song.setTitle(metadata.get("dc:title"));
-        song.setDuration(Double.valueOf(metadata.get("xmpDM:duration")));
+        song.setTitle(metadata.getOrDefault("dc:title", null));
+        song.setDuration(Double.valueOf(metadata.getOrDefault("xmpDM:duration", "0")));
         song.setNumListened(0L);
-        song.setGenre(metadata.get("xmpDM:genre"));//chu y thay doi
+        song.setGenre(metadata.getOrDefault("xmpDM:genre", null));//chu y thay doi
         song.setRegion(region);
-        song.setAlbum(metadata.get("xmpDM:album"));
-        song.setNumTrack(Long.valueOf(metadata.get("xmpDM:trackNumber")));
+        song.setAlbum(metadata.getOrDefault("xmpDM:album", null));
+        song.setNumTrack(Long.valueOf(metadata.getOrDefault("xmpDM:trackNumber", "1")));
         song.setIsChecked(false);
 
         createImage(path, song);
@@ -89,13 +88,14 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     }
 
     private void createImage(Path path, Song song) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
-        MP3File mp3 = new MP3File(path.toFile());
-        BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
-
-        if(icon != null) {
+        try {
+            MP3File mp3 = new MP3File(path.toFile());
+            BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
             String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
             ImageIO.write(icon, "png", new File(imageUrl));
             song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
+        } catch (Exception e) {
+            song.setCoverImage("default.png");
         }
     }
 
