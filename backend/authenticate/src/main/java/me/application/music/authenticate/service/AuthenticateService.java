@@ -38,6 +38,7 @@ public class AuthenticateService implements UserDetailsService {
         user.setLastName("Guest");
         user.setUsername(authenticate.getUsername());
         user.setRoleId(1L);
+        user.setAvatar("default.png");
         return authenticateRepository.createOne(authenticate) + userReposotory.createOne(user);
     }
 

@@ -4,7 +4,13 @@ import me.application.music.music_application.tables.pojos.User;
 import me.application.music.music_application.tables.records.UserRecord;
 import me.application.music.repository.AbsMysqlRepository;
 import org.jooq.impl.TableImpl;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Repository;
+
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static me.application.music.music_application.Tables.USER;
 
