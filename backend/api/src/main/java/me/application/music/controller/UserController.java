@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(userService.delete(id));
     }
 
-    @PutMapping("role")
+    @PutMapping("/role")
     public ResponseEntity<Integer> setRoleUser(@RequestParam String id, @RequestParam Long roleId) {
         return ResponseEntity.ok(userService.setRole(id, roleId));
     }
