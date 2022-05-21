@@ -58,6 +58,6 @@ public class AuthenticateService implements UserDetailsService {
         if (authenticate == null) {
             throw new UsernameNotFoundException(username);
         }
-        return CustomUserDetails.build(authenticate, role);
+        return CustomUserDetails.build(authenticate, role, user);
     }
 }

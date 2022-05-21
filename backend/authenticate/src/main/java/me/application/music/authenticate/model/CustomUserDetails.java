@@ -3,6 +3,7 @@ package me.application.music.authenticate.model;
 import lombok.Data;
 import me.application.music.music_application.tables.pojos.Authenticate;
 import me.application.music.music_application.tables.pojos.Role;
+import me.application.music.music_application.tables.pojos.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,20 +18,24 @@ public class CustomUserDetails implements UserDetails {
 
     private Authenticate authenticate;
 
+    private User user;
+
     private Collection<? extends GrantedAuthority> roles;
 
     public CustomUserDetails(Authenticate authenticate,
-                             Collection<? extends GrantedAuthority> roles) {
+                             Collection<? extends GrantedAuthority> roles, User user) {
         this.authenticate = authenticate;
         this.roles = roles;
+        this.user = user;
     }
 
-    public static CustomUserDetails build(Authenticate authenticate, Role role) {
+    public static CustomUserDetails build(Authenticate authenticate, Role role, User user) {
         List<GrantedAuthority> list = new ArrayList<>();
         list.add(new SimpleGrantedAuthority(role.getRole()));
         return new CustomUserDetails(
                 authenticate,
-                list
+                list,
+                user
         );
     }
 
