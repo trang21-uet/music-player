@@ -4,11 +4,15 @@ import {
   StyleSheet,
   TouchableNativeFeedback,
   Image,
+  ImageBackground,
+  Dimensions,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../../providers';
-import {Pressable, RowOption} from '../../../components';
+import {RowOption} from '../../../components';
+
+const {width} = Dimensions.get('window');
 
 export default function Profile() {
   const navigation = useNavigation();
@@ -21,53 +25,83 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.profile}>
+      <ImageBackground
+        source={require('../../../assets/images/default_wallpaper.png')}
+        resizeMode="cover"
+        style={styles.profile}
+        imageStyle={{opacity: 0.2, width}}>
         <View style={styles.profilePic}>
           <TouchableNativeFeedback
             onPress={() => navigation.navigate('UserInfo')}>
             <Image
-              source={require('../../../assets/images/user-male.png')}
-              style={{height: 100, width: 100}}
+              source={
+                user
+                  ? {uri: `http://localhost:8080/avatars/${user.avatar}`}
+                  : require('../../../assets/images/user-male.png')
+              }
+              style={{height: 80, width: 80}}
             />
           </TouchableNativeFeedback>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginTop: 10,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
           {user ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 10,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text style={{fontSize: 18, marginEnd: 5}}>
-                {(user.firstName ? user.firstName : '') +
-                  ' ' +
-                  (user.lastName ? user.lastName : null)}
-              </Text>
-              {/* <Pressable icon="pencil" size={18} /> */}
-            </View>
+            <Text style={{fontSize: 18, marginEnd: 5, color: '#ccc'}}>
+              {(user.firstName ? user.firstName : '') +
+                ' ' +
+                (user.lastName ? user.lastName : null)}
+            </Text>
           ) : (
-            <RowOption
-              icon="log-in-outline"
-              title="Login"
-              onPress={() => navigation.navigate('AuthScreen')}></RowOption>
+            <Text
+              style={{
+                fontSize: 18,
+                marginStart: 10,
+              }}>
+              You are not logged in
+            </Text>
           )}
         </View>
+      </ImageBackground>
+      <View style={styles.other}>
+        <RowOption
+          icon="settings-outline"
+          title="Setting"
+          onPress={() => console.info(user)}
+        />
+        {user ? (
+          <>
+            {user.role[0] === 'admin' ? (
+              <RowOption
+                icon="musical-notes-outline"
+                title="Manage songs"
+                onPress={() => navigation.navigate('ManageSong')}
+              />
+            ) : (
+              <RowOption
+                icon="cloud-upload-outline"
+                title="Upload song"
+                onPress={() => navigation.navigate('Upload')}
+              />
+            )}
+            <RowOption
+              icon="log-out-outline"
+              title="Log out"
+              onPress={auth.logout}
+            />
+          </>
+        ) : (
+          <RowOption
+            icon="log-in-outline"
+            title="Login"
+            onPress={() => navigation.navigate('AuthScreen')}
+          />
+        )}
       </View>
-      {user && (
-        <View style={styles.other}>
-          <RowOption
-            icon="cloud-upload-outline"
-            title="Upload song"
-            onPress={() => navigation.navigate('Upload')}
-          />
-
-          <RowOption
-            icon="log-out-outline"
-            title="Logout"
-            onPress={auth.logout}
-          />
-        </View>
-      )}
     </View>
   );
 }
@@ -75,39 +109,37 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
   },
   profile: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-around',
   },
   profilePic: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 80,
+    borderRadius: 40,
     backgroundColor: '#fff',
   },
   other: {
-    width: '100%',
-    flex: 2,
+    flex: 4,
+    width: width,
     paddingStart: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#414141',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 50,
-    width: '100%',
+    width: width,
     justifyContent: 'space-between',
     paddingStart: 20,
   },
 });
 
-import ProfileHeader from './ProfileHeader';
 import Setting from './Setting';
 import Upload from './Upload';
 import UserInfo from './UserInfo';
-export {ProfileHeader, Setting, Upload, UserInfo};
+import ManageSong from './ManageSong';
+export {Setting, Upload, UserInfo, ManageSong};

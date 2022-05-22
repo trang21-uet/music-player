@@ -9,6 +9,7 @@ import {
   Upload,
   Player,
   PlayerMenu,
+  Playlist,
 } from './screens';
 import {AuthProvider, PlayerProvider} from './providers';
 
@@ -17,7 +18,7 @@ const Stack = createNativeStackNavigator();
 const myTheme = {
   dark: true,
   colors: {
-    background: '#313141',
+    background: '#212131',
     text: '#ccc',
   },
 };
@@ -50,6 +51,7 @@ export default function App() {
               component={PlayerMenu}
               options={{animation: 'slide_from_bottom'}}
             />
+            <Stack.Screen name="Playlist" component={Playlist} />
             <Stack.Screen name="AuthScreen" component={AuthScreen} />
           </Stack.Navigator>
         </PlayerProvider>

@@ -64,10 +64,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderTopColor: '#414141',
     borderTopWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   button: {
     flex: 1,

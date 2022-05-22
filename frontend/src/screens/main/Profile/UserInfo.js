@@ -23,7 +23,8 @@ const Row = ({title, value, editable}) => {
           alignItems: 'flex-end',
           justifyContent: 'flex-end',
         }}>
-        <Text style={{fontSize: 16, marginBottom: 8, marginEnd: 10}}>
+        <Text
+          style={{fontSize: 16, marginBottom: 8, marginEnd: 10, color: '#ccc'}}>
           {value ? value : null}
         </Text>
         {editable && (

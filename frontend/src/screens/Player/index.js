@@ -5,9 +5,13 @@ import {
   Dimensions,
   TouchableOpacity,
   ToastAndroid,
+  ImageBackground,
+  Image,
   ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import TrackPlayer, {
   State,
@@ -21,9 +25,8 @@ import Slider from '@react-native-community/slider';
 import {Selectable, Pressable} from '../../components';
 import MCicon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {usePlayer} from '../../providers';
-import PlayerMenu from './PlayerMenu';
 
-const {width, height} = Dimensions.get('screen');
+const {width, height} = Dimensions.get('window');
 
 const togglePlayback = async playbackState => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
@@ -39,10 +42,10 @@ const togglePlayback = async playbackState => {
 
 export default function Player() {
   const navigation = useNavigation();
+  const player = usePlayer();
   const {position, buffered, duration} = useProgress();
   const playbackState = usePlaybackState();
   const [repeat, setRepeat] = useState('off');
-  const player = usePlayer();
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
@@ -73,95 +76,116 @@ export default function Player() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable
-          icon="arrow-back"
-          style={{padding: 20}}
-          onPress={() => navigation.goBack()}
-        />
-        <Pressable
-          icon="ellipsis-horizontal"
-          style={{padding: 20}}
-          onPress={() => navigation.navigate('PlayerMenu')}
-        />
-      </View>
-      <View style={styles.info}>
-        <View style={[styles.infoText, {bottom: -60, width: width}]}>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <Text numberOfLines={1} style={[styles.songTitle]}>
-              {player.track.title}
+    <ImageBackground
+      source={{uri: player.track.coverImage}}
+      resizeMode="cover"
+      style={{height: height}}
+      imageStyle={{opacity: 0.3}}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Pressable
+            icon="arrow-back"
+            style={{padding: 20}}
+            onPress={() => navigation.goBack()}
+          />
+          <Pressable
+            icon="ellipsis-horizontal"
+            style={{padding: 20}}
+            onPress={() => navigation.navigate('PlayerMenu')}
+          />
+        </View>
+        <View style={styles.cover}>
+          <Image
+            source={{
+              uri: player.track.coverImage,
+            }}
+            style={{width: 250, height: 250, borderRadius: 20}}
+          />
+        </View>
+        <View style={styles.info}>
+          <View style={styles.infoText}>
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}>
+              <Text numberOfLines={1} style={styles.songTitle}>
+                {player.track.title}
+              </Text>
+            </ScrollView>
+          </View>
+          <View style={styles.infoText}>
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}>
+              <Text numberOfLines={1} style={styles.songArtist}>
+                {player.track.artist}
+              </Text>
+            </ScrollView>
+          </View>
+        </View>
+        <View style={styles.musicControls}>
+          <View style={styles.row}>
+            <Text style={{color: '#ccc'}}>
+              {new Date(position * 1000).toISOString().substring(14, 19)}
             </Text>
-          </ScrollView>
-        </View>
-        <View style={[styles.infoText, {bottom: -95}]}>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <Text numberOfLines={1} style={[styles.songAuthor]}>
-              {player.track.artist}
-            </Text>
-          </ScrollView>
-        </View>
-      </View>
-      <View style={styles.musicControls}>
-        <View style={styles.row}>
-          <Text style={styles.timeLabel}>
-            {new Date(position * 1000).toISOString().substring(14, 19)}
-          </Text>
-          <Slider
-            style={styles.progressBar}
-            value={position}
-            minimumValue={0}
-            maximumValue={duration}
-            thumbTintColor="#2E8B57"
-            minimumTrackTintColor="#2E8B57"
-            maximumTrackTintColor="#C1E1C1"
-            onSlidingComplete={async value => TrackPlayer.seekTo(value)}
-          />
-          <Text style={styles.timeLabel}>
-            {new Date((duration - position) * 1000)
-              .toISOString()
-              .substring(14, 19)}
-          </Text>
-        </View>
-        <View style={[styles.row, {marginBottom: 0}]}>
-          <Selectable
-            icon="heart-outline"
-            alternativeIcon="heart"
-            onPress={() =>
-              ToastAndroid.show('Added to favorites!', ToastAndroid.SHORT)
-            }
-          />
-          <TouchableOpacity onPress={() => navigation.navigate('PlayerMenu')}>
-            <MCicon name="playlist-music" size={30} color="#ccc" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.row}>
-          <Selectable icon="shuffle" onPress={() => null} />
-          <Pressable
-            icon="play-skip-back"
-            onPress={async () => await TrackPlayer.skipToPrevious()}
-          />
-          <Pressable
-            icon={
-              playbackState === State.Playing ? 'pause-circle' : 'play-circle'
-            }
-            onPress={() => togglePlayback(playbackState)}
-            size={60}
-          />
-          <Pressable
-            icon="play-skip-forward"
-            onPress={async () => await TrackPlayer.skipToNext()}
-          />
-          <TouchableOpacity onPress={changeRepeatMode}>
-            <MCicon
-              name={`${repeatIcon()}`}
-              size={30}
-              color={repeat !== 'off' ? '#2E8B57' : '#ccc'}
+            <Slider
+              style={styles.progressBar}
+              value={position}
+              minimumValue={0}
+              maximumValue={duration}
+              thumbTintColor="#2E8B57"
+              minimumTrackTintColor="#2E8B57"
+              maximumTrackTintColor="#C1E1C1"
+              onSlidingComplete={async value => await TrackPlayer.seekTo(value)}
             />
-          </TouchableOpacity>
+            <Text style={{color: '#ccc'}}>
+              {new Date((duration - position) * 1000)
+                .toISOString()
+                .substring(14, 19)}
+            </Text>
+          </View>
+          <View style={[styles.row, {marginBottom: 0}]}>
+            <Selectable
+              icon="heart-outline"
+              alternativeIcon="heart"
+              onPress={() =>
+                ToastAndroid.show('Added to favorites!', ToastAndroid.SHORT)
+              }
+            />
+            <TouchableOpacity onPress={() => navigation.navigate('Playlist')}>
+              <MCicon name="playlist-music" size={30} color="#ccc" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.row}>
+            <Selectable icon="shuffle" onPress={() => null} />
+            <Pressable
+              icon="play-skip-back"
+              onPress={async () => {
+                coverRef.current.scrollToIndex();
+                await TrackPlayer.skipToPrevious();
+              }}
+            />
+            <Pressable
+              icon={
+                playbackState === State.Playing ? 'pause-circle' : 'play-circle'
+              }
+              onPress={() => togglePlayback(playbackState)}
+              size={70}
+            />
+            <Pressable
+              icon="play-skip-forward"
+              onPress={async () => await TrackPlayer.skipToNext()}
+            />
+            <TouchableOpacity onPress={changeRepeatMode}>
+              <MCicon
+                name={`${repeatIcon()}`}
+                size={30}
+                color={repeat !== 'off' ? '#2E8B57' : '#ccc'}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
@@ -169,6 +193,21 @@ export const PlayerWidget = () => {
   const playbackState = usePlaybackState();
   const player = usePlayer();
   const navigation = useNavigation();
+  const spin = useRef(new Animated.Value(0)).current;
+
+  const rotate = Animated.loop(
+    Animated.timing(spin, {
+      toValue: 1,
+      duration: 8000,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    }),
+  );
+
+  const spinValue = spin.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
@@ -188,15 +227,34 @@ export const PlayerWidget = () => {
       ]}>
       <View
         style={{
-          flex: 1,
           flexDirection: 'column',
-          alignItems: 'baseline',
           justifyContent: 'center',
         }}>
-        <Text numberOfLines={1} style={{fontSize: 16, fontWeight: '600'}}>
+        <Animated.Image
+          source={{uri: player.track.coverImage}}
+          style={{
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            marginHorizontal: 10,
+            transform: [{rotate: spinValue}],
+          }}
+        />
+      </View>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}>
+        <Text
+          numberOfLines={1}
+          style={{fontSize: 16, fontWeight: '600', color: '#ccc'}}>
           {player.track.title}
         </Text>
-        <Text numberOfLines={1} style={{fontSize: 14, fontWeight: '300'}}>
+        <Text
+          numberOfLines={1}
+          style={{fontSize: 14, fontWeight: '300', color: '#ccc'}}>
           {player.track.artist}
         </Text>
       </View>
@@ -213,7 +271,10 @@ export const PlayerWidget = () => {
         />
         <Pressable
           icon={playbackState === State.Playing ? 'pause' : 'play'}
-          onPress={() => togglePlayback(playbackState)}
+          onPress={() => {
+            togglePlayback(playbackState);
+            playbackState === State.Playing ? rotate.stop() : rotate.start();
+          }}
           size={35}
         />
         <Pressable
@@ -235,10 +296,12 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1,
-    position: 'absolute',
-    top: 450,
-    left: 0,
-    right: 0,
+    alignItems: 'center',
+  },
+  cover: {
+    flex: 5,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',
@@ -247,7 +310,6 @@ const styles = StyleSheet.create({
     marginVertical: '2%',
   },
   infoText: {
-    position: 'absolute',
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -256,23 +318,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 30,
     fontWeight: '600',
-    // textShadowColor: '#313141',
-    // textShadowOffset: {width: 2, height: 2},
-    // textShadowRadius: 1,
     overflow: 'visible',
+    color: '#ccc',
   },
-  songAuthor: {
+  songArtist: {
     textAlign: 'center',
     fontSize: 20,
     fontWeight: '300',
-    // textShadowColor: '#313141',
-    // textShadowOffset: {width: 2, height: 2},
-    // textShadowRadius: 1,
+    color: '#ccc',
   },
   musicControls: {
-    position: 'absolute',
-    bottom: '2%',
-    paddingHorizontal: '5%',
+    alignSelf: 'flex-end',
+    paddingHorizontal: 10,
+    marginBottom: 10,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -282,22 +340,14 @@ const styles = StyleSheet.create({
   progressBar: {
     width: '75%',
   },
-  timeLabel: {
-    color: '#ccc',
-  },
   widget: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
     height: 70,
-    backgroundColor: '#313141',
-    borderColor: '#fff',
-    borderWidth: 1,
-    borderRadius: 4,
-    bottom: 68,
+    borderTopColor: '#333',
+    borderTopWidth: 1,
     flexDirection: 'row',
-    paddingHorizontal: 20,
   },
 });
 
-export {PlayerMenu};
+import PlayerMenu from './PlayerMenu';
+import Playlist from './Playlist';
+export {PlayerMenu, Playlist};

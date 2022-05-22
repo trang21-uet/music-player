@@ -5,6 +5,7 @@ import Selectable from './Selectable';
 import Error from './Error';
 import InputGroup from './InputGroup';
 import RowOption from './RowOption';
+import Song from './Song';
 
 export {
   Loading,
@@ -14,4 +15,5 @@ export {
   Error,
   InputGroup,
   RowOption,
+  Song,
 };

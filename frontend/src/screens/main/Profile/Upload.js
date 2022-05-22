@@ -17,8 +17,9 @@ export default function Upload() {
 
   const uploadFile = async () => {
     if (file !== null) {
+      const userInfo = await auth.user();
       const data = new FormData();
-      data.append('ownerId', auth.user().id);
+      data.append('ownerId', userInfo.id);
       data.append('file', file);
       data.append('region', region);
 
@@ -27,7 +28,7 @@ export default function Upload() {
           method: 'POST',
           body: data,
           headers: {
-            Authorization: 'Bearer ' + auth.token(),
+            Authorization: 'Bearer ' + userInfo.token,
           },
         });
         const message = await response.text();
@@ -76,7 +77,9 @@ export default function Upload() {
             </View>
           </TouchableNativeFeedback>
           {file !== null && (
-            <Text style={{marginStart: 10, maxWidth: '60%'}} numberOfLines={1}>
+            <Text
+              style={{marginStart: 10, maxWidth: '60%', color: '#ccc'}}
+              numberOfLines={1}>
               {file.name}
             </Text>
           )}
@@ -95,6 +98,7 @@ export default function Upload() {
           <Picker.Item label="US-UK" value="us-uk" />
           <Picker.Item label="China" value="cn" />
           <Picker.Item label="Japan" value="jp" />
+          <Picker.Item label="Korea" value="kr" />
         </Picker>
       </View>
 

@@ -8,7 +8,7 @@ export default function Loading() {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#313141',
+        backgroundColor: '#212131',
       }}>
       <ActivityIndicator size={50} color="#ccc" />
     </View>

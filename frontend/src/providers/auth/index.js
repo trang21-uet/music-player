@@ -33,12 +33,7 @@ const AuthProvider = ({children}) => {
           'Unauthorized' &&
           Alert.alert('Error', 'Username or password is incorrect!');
       } else {
-        const response = await fetch(
-          `http://localhost:8080/users?username=${data.username}`,
-        );
-        const user = await response.json();
-        await AsyncStorage.setItem('user', JSON.stringify(user));
-        navigation.navigate('Home');
+        await AsyncStorage.setItem('user', JSON.stringify(data));
         ToastAndroid.show('Login successfully!', 2000);
       }
     } catch (error) {
@@ -55,13 +50,9 @@ const AuthProvider = ({children}) => {
           'Content-Type': 'application/json',
         },
       });
-      const data = await response.json();
-      if (data.error) {
-        console.error(data.error);
-      } else {
-        navigation.navigate('Home');
-        ToastAndroid.show('Sign up successfully!', 2000);
-      }
+      const message = await response.text();
+      console.log(message);
+      ToastAndroid.show('Sign up successfully!', 2000);
     } catch (error) {
       console.error(error);
     }
