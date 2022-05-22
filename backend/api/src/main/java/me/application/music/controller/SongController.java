@@ -22,8 +22,7 @@ public class SongController {
 
     @GetMapping("songs")
     public ResponseEntity<List<Song>> getAllFileNames() {
-        return ResponseEntity.ok(localFileStorageService.getFileInfos(MvcUriComponentsBuilder
-                .fromMethodName(this.getClass(), "getAllFileNames")));
+        return ResponseEntity.ok(localFileStorageService.getFileInfos());
     }
 
     @GetMapping("songs/{fileName}")
