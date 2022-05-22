@@ -5,6 +5,7 @@ import me.application.music.music_application.tables.pojos.Authenticate;
 import me.application.music.music_application.tables.pojos.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +35,6 @@ public class JwtResponse {
         this.id = user.getId();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
-        this.avatar = user.getAvatar();
+        this.avatar = UriComponentsBuilder.fromPath(user.getAvatar()).build().encode().toString();
     }
 }

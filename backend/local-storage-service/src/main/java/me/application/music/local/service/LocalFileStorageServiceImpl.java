@@ -22,12 +22,14 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.imageio.ImageIO;
+import javax.print.DocFlavor;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -148,19 +150,15 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     }
 
     @SneakyThrows
-    public List<Song> getFileInfos(UriComponentsBuilder methodUrl) {
-
+    public List<Song> getFileInfos() {
         List<Song> songs = songRepository.findAll();
         songs.forEach(song -> {
-            song.setUrl(UriComponentsBuilder.fromUri(methodUrl.build().toUri()).pathSegment(song.getUrl()).build().encode().toString());
-            song.setCoverImage(UriComponentsBuilder.fromUriString(
-                    methodUrl.build().getScheme()
-                            + "://"
-                            + methodUrl.build().getHost()
-                            + ":"
-                            + methodUrl.build().getPort()
-                            + "/images")
-                        .pathSegment(song.getCoverImage()).build().encode().toString());
+            try {
+                song.setUrl(UriComponentsBuilder.fromPath(song.getUrl()).build().encode().toString());
+                song.setCoverImage(UriComponentsBuilder.fromPath(song.getCoverImage()).build().encode().toString());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
 
         return songs;
