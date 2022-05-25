@@ -11,7 +11,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import TrackPlayer, {
   State,
@@ -26,18 +26,15 @@ import {Selectable, Pressable} from '../../components';
 import MCicon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {usePlayer} from '../../providers';
 
-const {width, height} = Dimensions.get('window');
+const {height} = Dimensions.get('window');
 
 const togglePlayback = async playbackState => {
   const currentTrack = await TrackPlayer.getCurrentTrack();
 
-  if (currentTrack !== null) {
-    if (playbackState === State.Paused) {
-      await TrackPlayer.play();
-    } else {
-      await TrackPlayer.pause();
-    }
-  }
+  currentTrack &&
+    (playbackState === State.Paused
+      ? await TrackPlayer.play()
+      : await TrackPlayer.pause());
 };
 
 export default function Player() {
@@ -51,6 +48,7 @@ export default function Player() {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
       const track = await TrackPlayer.getTrack(event.nextTrack);
       player.setTrack(track);
+      console.info({track});
     }
   });
 
@@ -77,7 +75,7 @@ export default function Player() {
 
   return (
     <ImageBackground
-      source={{uri: player.track.coverImage}}
+      source={{uri: `http://localhost:8080/images/${player.track.coverImage}`}}
       resizeMode="cover"
       style={{height: height}}
       imageStyle={{opacity: 0.3}}>
@@ -97,7 +95,7 @@ export default function Player() {
         <View style={styles.cover}>
           <Image
             source={{
-              uri: player.track.coverImage,
+              uri: `http://localhost:8080/images/${player.track.coverImage}`,
             }}
             style={{width: 250, height: 250, borderRadius: 20}}
           />
@@ -159,10 +157,7 @@ export default function Player() {
             <Selectable icon="shuffle" onPress={() => null} />
             <Pressable
               icon="play-skip-back"
-              onPress={async () => {
-                coverRef.current.scrollToIndex();
-                await TrackPlayer.skipToPrevious();
-              }}
+              onPress={async () => await TrackPlayer.skipToPrevious()}
             />
             <Pressable
               icon={
@@ -216,7 +211,7 @@ export const PlayerWidget = () => {
     }
   });
 
-  return player.tracks.length === 0 ? null : (
+  return !player.track ? null : (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate('Player');
@@ -231,7 +226,9 @@ export const PlayerWidget = () => {
           justifyContent: 'center',
         }}>
         <Animated.Image
-          source={{uri: player.track.coverImage}}
+          source={{
+            uri: `http://localhost:8080/images/${player.track.coverImage}`,
+          }}
           style={{
             width: 50,
             height: 50,

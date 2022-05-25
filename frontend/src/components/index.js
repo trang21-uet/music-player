@@ -6,6 +6,7 @@ import Error from './Error';
 import InputGroup from './InputGroup';
 import RowOption from './RowOption';
 import Song from './Song';
+import SongWithCheckbox from './SongWithCheckbox';
 
 export {
   Loading,
@@ -16,4 +17,5 @@ export {
   InputGroup,
   RowOption,
   Song,
+  SongWithCheckbox,
 };

@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
-  FlatList,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
@@ -16,10 +15,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {Song} from '../../../components';
+import {Error, Song} from '../../../components';
 import {usePlayer} from '../../../providers';
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 const routes = {
   all: 'All',
@@ -28,7 +27,7 @@ const routes = {
   cn: 'China',
   jp: 'Japan',
   kr: 'Korea',
-  other: 'Other',
+  null: 'Other',
 };
 
 const data = Object.keys(routes).map(key => ({
@@ -97,7 +96,7 @@ const Tabs = ({data, scrollX, onTabPress}) => {
 };
 
 const Indicator = ({measures, scrollX}) => {
-  const inputRange = data.map((value, index) => index * width);
+  const inputRange = data.map((_, index) => index * width);
   const indicatorWidth = scrollX.interpolate({
     inputRange,
     outputRange: measures.map(measure => measure.width),
@@ -133,9 +132,13 @@ const TabScreen = ({item}) => {
   return (
     <ScrollView>
       <View style={{flex: 1, width}}>
-        {selected.map((track, index) => (
-          <Song track={track} key={index} checked={true} />
-        ))}
+        {selected.length === 0 ? (
+          <Error status="No songs" />
+        ) : (
+          selected.map((track, index) => (
+            <Song track={track} key={index} queue={selected} index={index} />
+          ))
+        )}
       </View>
     </ScrollView>
   );
@@ -177,5 +180,6 @@ const styles = StyleSheet.create({
   tabs: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
+    marginBottom: 10,
   },
 });

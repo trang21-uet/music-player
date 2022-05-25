@@ -1,9 +1,9 @@
 import {View, Text, StyleSheet, TextInput, ScrollView} from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {forwardRef, useRef, useState} from 'react';
 import Ranking from './Ranking';
 import {Pressable, Loading, Song} from '../../../components';
 
-const SearchBar = ({innerRef, text, onChange}) => {
+const SearchBar = forwardRef(({text, onChange}, ref) => {
   const [focus, setFocus] = useState(false);
   return (
     <View style={styles.searchBox}>
@@ -11,18 +11,18 @@ const SearchBar = ({innerRef, text, onChange}) => {
         icon={focus ? 'arrow-back' : 'search'}
         size={25}
         color="#000"
-        onPress={() => innerRef.current.blur()}
+        onPress={() => ref.current.blur()}
       />
       <TextInput
         value={text}
         onChangeText={value => onChange(value)}
-        ref={innerRef}
+        ref={ref}
         style={styles.searchInput}
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
         numberOfLines={1}
         autoCapitalize="none"
-        placeholder={focus ? '' : 'Enter song, artist, album ...'}
+        placeholder="Enter song, artist, album ..."
         placeholderTextColor="#888"
         selectionColor="#50C878"
       />
@@ -39,7 +39,7 @@ const SearchBar = ({innerRef, text, onChange}) => {
       />
     </View>
   );
-};
+});
 
 const SearchResult = ({data}) => {
   return (
@@ -47,12 +47,7 @@ const SearchResult = ({data}) => {
       style={{display: data ? 'flex' : 'none'}}
       contentContainerStyle={{width: '100%'}}>
       {data.map((item, index) => (
-        <Song
-          key={index}
-          title={item.title}
-          artist={item.artist}
-          cover={`http://localhost:8080/images/${item.coverImage}`}
-        />
+        <Song key={index} track={item} />
       ))}
     </ScrollView>
   );
@@ -85,7 +80,7 @@ export const Explore = () => {
   return (
     <View style={styles.container}>
       <SearchBar
-        innerRef={inputRef}
+        ref={inputRef}
         text={value}
         onChange={async value => {
           setValue(value);

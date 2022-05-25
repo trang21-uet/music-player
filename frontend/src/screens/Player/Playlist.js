@@ -1,25 +1,33 @@
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
-import React from 'react';
-import {usePlayer} from '../../providers';
+import {Text, View, ScrollView} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {Pressable, Song} from '../../components';
 import {useNavigation} from '@react-navigation/native';
+import TrackPlayer from 'react-native-track-player';
 
-const SongPlaylist = ({tracks}) => {
+const SongList = ({tracks}) => {
   return (
     <ScrollView>
-      {tracks.map((track, index) => (
-        <Song track={track} key={index} />
-      ))}
+      {tracks.length > 0 &&
+        tracks.map((track, index) => (
+          <Song track={track} key={index} queue={tracks} />
+        ))}
     </ScrollView>
   );
 };
 
 export default function Playlist() {
-  const player = usePlayer();
   const navigation = useNavigation();
+  const [queue, setQueue] = useState([]);
 
+  useEffect(() => {
+    const getCurrentQueue = async () => {
+      const currentQueue = await TrackPlayer.getQueue();
+      setQueue(currentQueue);
+    };
+    getCurrentQueue();
+  }, []);
   return (
-    <View style={styles.container}>
+    <View style={{flex: 1}}>
       <View style={{flexDirection: 'row'}}>
         <Pressable
           icon="arrow-back"
@@ -37,13 +45,7 @@ export default function Playlist() {
         }}>
         Playing
       </Text>
-      <SongPlaylist tracks={player.tracks} />
+      <SongList tracks={queue} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

@@ -37,7 +37,7 @@ export default function Profile() {
               source={
                 user
                   ? {uri: `http://localhost:8080/avatars/${user.avatar}`}
-                  : require('../../../assets/images/user-male.png')
+                  : require('../../../assets/images/default.png')
               }
               style={{height: 80, width: 80}}
             />
@@ -75,6 +75,11 @@ export default function Profile() {
         />
         {user ? (
           <>
+            <RowOption
+              icon="person-outline"
+              title="Your infomations"
+              onPress={() => navigation.navigate('UserInfo')}
+            />
             {user.role[0] === 'admin' ? (
               <RowOption
                 icon="musical-notes-outline"
@@ -82,11 +87,13 @@ export default function Profile() {
                 onPress={() => navigation.navigate('ManageSong')}
               />
             ) : (
-              <RowOption
-                icon="cloud-upload-outline"
-                title="Upload song"
-                onPress={() => navigation.navigate('Upload')}
-              />
+              <>
+                <RowOption
+                  icon="cloud-upload-outline"
+                  title="Upload song"
+                  onPress={() => navigation.navigate('Upload')}
+                />
+              </>
             )}
             <RowOption
               icon="log-out-outline"

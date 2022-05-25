@@ -1,25 +1,23 @@
-import {
-  Text,
-  View,
-  Image,
-  TouchableNativeFeedback,
-  ScrollView,
-} from 'react-native';
-import React, {useRef} from 'react';
+import {Text, View, Image, TouchableNativeFeedback} from 'react-native';
+import React from 'react';
 import {usePlayer} from '../providers';
 import Pressable from './Pressable';
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import TrackPlayer from 'react-native-track-player';
 
-export default function Song({track, checked, onCheck}) {
+export default function Song({track, queue, index}) {
   const player = usePlayer();
   const playing = player.track === track;
-  const checkboxRef = useRef();
+
+  const updateQueue = async () => {
+    await TrackPlayer.destroy();
+    await player.setUpPlayer(queue);
+    player.setTrack(track);
+    await TrackPlayer.skip(index);
+    await TrackPlayer.play();
+  };
 
   return (
-    <TouchableNativeFeedback
-      onPress={() =>
-        checked ? player.setTrack(track) : checkboxRef.current.onPress()
-      }>
+    <TouchableNativeFeedback onPress={updateQueue}>
       <View
         style={{
           width: '100%',
@@ -58,17 +56,8 @@ export default function Song({track, checked, onCheck}) {
             </Text>
           </View>
         </View>
-        {checked ? (
-          <Pressable icon="ellipsis-vertical" size={20} />
-        ) : (
-          <BouncyCheckbox
-            size={20}
-            ref={checkboxRef}
-            isChecked={checked}
-            fillColor="#2E8B57"
-            onPress={checked => onCheck(!checked)}
-          />
-        )}
+
+        <Pressable icon="ellipsis-vertical" size={20} />
       </View>
     </TouchableNativeFeedback>
   );

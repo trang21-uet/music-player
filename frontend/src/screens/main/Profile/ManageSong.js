@@ -1,10 +1,9 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {Pressable, Song} from '../../../components';
-import {Loading} from '../../../components';
+import {Error, Pressable, SongWithCheckbox} from '../../../components';
 
 export default function ManageSong() {
-  const [songs, setSongs] = useState([]);
+  const [songs, setSongs] = useState(null);
   const [checkedSongs, setCheckedSongs] = useState([]);
 
   const getUnaprrovedSongs = async () => {
@@ -14,7 +13,7 @@ export default function ManageSong() {
       );
       const data = await response.json();
       setSongs(data);
-      // console.info(data);
+      console.info('data: ', data);
     } catch (error) {
       console.error(error);
     }
@@ -50,7 +49,7 @@ export default function ManageSong() {
         <Text style={{fontSize: 20, fontWeight: '600', color: '#fff'}}>
           Unapproved Songs
         </Text>
-        {checkedSongs?.length > 0 && (
+        {checkedSongs.length > 0 && (
           <Pressable
             icon="checkmark"
             style={{marginEnd: 10}}
@@ -58,14 +57,14 @@ export default function ManageSong() {
           />
         )}
       </View>
-      <ScrollView>
-        {songs.length === 0 ? (
-          <Loading />
-        ) : (
-          songs.map(
+      {songs.length === 0 ? (
+        <Error status="No unapproved songs" />
+      ) : (
+        <ScrollView>
+          {songs.map(
             (song, index) =>
               !song.isChecked && (
-                <Song
+                <SongWithCheckbox
                   track={song}
                   key={index}
                   isChecked={song.isChecked}
@@ -78,9 +77,9 @@ export default function ManageSong() {
                   }
                 />
               ),
-          )
-        )}
-      </ScrollView>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 }
