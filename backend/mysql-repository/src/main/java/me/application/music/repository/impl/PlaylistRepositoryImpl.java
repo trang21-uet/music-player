@@ -17,7 +17,7 @@ public class PlaylistRepositoryImpl extends AbsMysqlRepository<Playlist, Playlis
         return PLAYLIST;
     }
 
-    public List<Playlist> findByName(String name) {
+    public List<Playlist> findAllByName(String name) {
         return this.dslContext.select()
                 .from(PLAYLIST)
                 .where(PLAYLIST.NAME.contains(name))

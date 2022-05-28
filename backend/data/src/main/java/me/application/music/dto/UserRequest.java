@@ -11,7 +11,7 @@ public class UserRequest {
     private String firstName;
     private String lastName;
     private String username;
-    private MultipartFile avatar;
+    private MultipartFile avatar = null;
     private Long   roleId;
 
 }

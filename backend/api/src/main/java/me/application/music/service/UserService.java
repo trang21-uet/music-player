@@ -50,13 +50,17 @@ public class UserService {
 
     @SneakyThrows
     private User toUser(UserRequest userRequest) {
-        Path path = this.root.resolve("avatars/" + Objects.requireNonNull(userRequest.getAvatar().getOriginalFilename()));
-        Files.copy(userRequest.getAvatar().getInputStream(), path);
         User user = userReposotory.findById(String.valueOf(userRequest.getId()));
         user.setFirstName(userRequest.getFirstName());
         user.setLastName(userRequest.getLastName());
         user.setUsername(userRequest.getUsername());
-        user.setAvatar(userRequest.getAvatar().getOriginalFilename());
+        try {
+            Path path = this.root.resolve("avatars/" + Objects.requireNonNull(userRequest.getAvatar().getOriginalFilename()));
+            Files.copy(userRequest.getAvatar().getInputStream(), path);
+            user.setAvatar(userRequest.getAvatar().getOriginalFilename());
+        } catch (Exception e) {
+            user.setAvatar(null);
+        }
         return user;
     }
 
