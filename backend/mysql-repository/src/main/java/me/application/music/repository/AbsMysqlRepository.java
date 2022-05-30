@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbsMysqlRepository<P, R extends TableRecordImpl<R>> {
@@ -76,15 +75,20 @@ public abstract class AbsMysqlRepository<P, R extends TableRecordImpl<R>> {
     public int update(P p) {
         Record record = dslContext.newRecord(this.getTable(), p);
         Map<Field<?>, Object> fieldMap = fieldRecordMap(record);
+        TableField<R, Long> fieldId = (TableField<R, Long>) List.of(record.fields()).stream()
+                .filter(field -> field.getName().equalsIgnoreCase("id"))
+                .findFirst()
+                .orElse(null);
         return dslContext.update(this.getTable())
                 .set(fieldMap)
+                .where(fieldId.eq(fieldId.getValue(record)))
                 .execute();
     }
 
     private Map<Field<?>, Object> fieldRecordMap(Record record) {
         List<Field<?>> fieldList = List.of(record.fields());
         return fieldList.stream()
-                .filter(Objects::nonNull)
+                .filter(field -> field.getValue(record) != null)
                 .collect(Collectors.toMap(field -> field, field -> field.getValue(record)));
     }
 

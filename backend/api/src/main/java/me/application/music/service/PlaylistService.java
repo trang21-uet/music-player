@@ -2,8 +2,10 @@ package me.application.music.service;
 
 import me.application.music.dto.PlaylistDTO;
 import me.application.music.music_application.tables.pojos.Playlist;
+import me.application.music.music_application.tables.pojos.PlaylistSongs;
 import me.application.music.music_application.tables.pojos.Song;
 import me.application.music.repository.impl.PlaylistRepositoryImpl;
+import me.application.music.repository.impl.PlaylistSongRepositoryImpl;
 import me.application.music.repository.impl.SongRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +17,14 @@ import java.util.stream.Collectors;
 public class PlaylistService {
     @Autowired private PlaylistRepositoryImpl playlistRepository;
     @Autowired private SongRepositoryImpl songRepository;
+    @Autowired private PlaylistSongRepositoryImpl playlistSongRepository;
 
-    private PlaylistDTO toPlaylistDTO(Playlist playlist) {
+    private PlaylistDTO toPlaylistDTO(Playlist playlist, List<Song> songs) {
         PlaylistDTO playlistDTO = new PlaylistDTO();
         playlistDTO.setId(playlist.getId());
         playlistDTO.setName(playlist.getName());
         playlistDTO.setOwnerId(playlist.getOwnerId());
-
-        playlistDTO.setSongs(this.convertIdsToSongs(playlist.getSongs()));
+        playlistDTO.setSongs(songs);
         return playlistDTO;
     }
 
@@ -31,35 +33,49 @@ public class PlaylistService {
         return 1;
     }
 
-    public Integer insert(Playlist playlist) {
+    public Integer create(Playlist playlist) {
         playlistRepository.createOne(playlist);
         return 1;
     }
 
+    public Integer delete(String id) {
+        playlistRepository.delete(id);
+        playlistSongRepository.deleteSongByPlaylistId(id);
+        return 1;
+    }
+
+    public Integer insertNewSong(PlaylistSongs playlistSongs) {
+        playlistSongRepository.createOne(playlistSongs);
+        return 1;
+    }
+
+    public Integer deleteSongInPlaylist(String id) {
+        playlistSongRepository.delete(id);
+        return 1;
+    }
+
     public List<PlaylistDTO> getPlaylistsByName(String name) {
-        return playlistRepository.findByName(name).stream().map(this::toPlaylistDTO)
-                .collect(Collectors.toList());
+        List<Playlist> playlists = playlistRepository.findAllByName(name);
+        return mapToPlaylistDTOs(playlists);
     }
 
-    public List<PlaylistDTO> getPlaylistsByUser(String ownerId) {
-        return playlistRepository.findByOwnerId(ownerId).stream().map(this::toPlaylistDTO)
-                .collect(Collectors.toList());
+    public PlaylistDTO getPlaylistById(String playlistId) {
+        Playlist playlist = playlistRepository.findById(playlistId);
+        return mapToPlaylistDTO(playlist);
     }
 
-    public PlaylistDTO getPlaylistById(String id) {
-        return this.toPlaylistDTO(playlistRepository.findById(id));
+    public List<PlaylistDTO> getPlaylistsByOwnerId(String ownerId) {
+        List<Playlist> playlists = playlistRepository.findByOwnerId(ownerId);
+        return mapToPlaylistDTOs(playlists);
     }
 
-    private List<Song> convertIdsToSongs(String ids) {
-        String[] split = ids.split(",");
-        return songRepository.findByIds(List.of(split));
+    private List<PlaylistDTO> mapToPlaylistDTOs(List<Playlist> playlists) {
+        return playlists.stream().map(this::mapToPlaylistDTO).collect(Collectors.toList());
     }
 
-    private String convertSongsToIds(List<Song> songs) {
-        final String[] ids = {""};
-        songs.forEach(song -> {
-            ids[0] = ids[0] + "," + song.getId();
-        });
-        return ids[0];
+    private PlaylistDTO mapToPlaylistDTO(Playlist playlist) {
+        List<String> songsId = playlistSongRepository.findAllSongsByPlaylistId(String.valueOf(playlist.getId()))
+                .stream().map(PlaylistSongs::getSongId).collect(Collectors.toList());
+        return this.toPlaylistDTO(playlist, songRepository.findByIds(songsId));
     }
 }
