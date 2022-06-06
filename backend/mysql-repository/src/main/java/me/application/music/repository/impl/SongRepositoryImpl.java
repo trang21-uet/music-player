@@ -44,7 +44,7 @@ public class SongRepositoryImpl extends AbsMysqlRepository<Song, SongRecord> {
     public List<Song> getSongsByName(String name, int offset, int limit) {
         return dslContext.select()
                 .from(this.getTable())
-                .where(SONG.FILE_NAME.contains(name))
+                .where(SONG.TITLE.contains(name))
                 .and(SONG.IS_CHECKED.eq(true))
                 .orderBy(SONG.NUM_LISTENED.desc())
                 .offset(offset)
@@ -77,7 +77,7 @@ public class SongRepositoryImpl extends AbsMysqlRepository<Song, SongRecord> {
     public List<Song> getTopSongsByParam(String param, int offset, int limit) {
         return dslContext.select()
                 .from(this.getTable())
-                .where(SONG.ALBUM.contains(param).or(SONG.FILE_NAME.contains(param).or(SONG.ARTIST.contains(param))))
+                .where(SONG.ALBUM.contains(param).or(SONG.TITLE.contains(param).or(SONG.ARTIST.contains(param))))
                 .and(SONG.IS_CHECKED.eq(true))
                 .orderBy(SONG.NUM_LISTENED.desc())
                 .offset(offset)
