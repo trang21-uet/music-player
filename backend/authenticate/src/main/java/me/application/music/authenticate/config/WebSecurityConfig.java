@@ -50,7 +50,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/favourite",
-                        "/upload").hasAuthority("user")
+                        "/upload",
+                        "/playlist",
+                        "/playlist/{id}",
+                        "/playlist/songs",
+                        "/playlist/songs/{id}").hasAuthority("user")
                 .antMatchers("/songs/check",
                         "/users/{id}",
                         "/role").hasAuthority("admin")
