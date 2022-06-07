@@ -1,9 +1,9 @@
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {Error, Pressable, SongWithCheckbox} from '../../../components';
 
 export default function ManageSong() {
-  const [songs, setSongs] = useState(null);
+  const [songs, setSongs] = useState([]);
   const [checkedSongs, setCheckedSongs] = useState([]);
 
   const getUnaprrovedSongs = async () => {
@@ -13,7 +13,7 @@ export default function ManageSong() {
       );
       const data = await response.json();
       setSongs(data);
-      console.info('data: ', data);
+      // console.info('data: ', data);
     } catch (error) {
       console.error(error);
     }
@@ -28,7 +28,7 @@ export default function ManageSong() {
         },
       );
       const message = await response.text();
-      console.log(message);
+      // console.log(message);
       setSongs(songs.filter(item => item !== song));
     });
   };
@@ -83,5 +83,3 @@ export default function ManageSong() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({});

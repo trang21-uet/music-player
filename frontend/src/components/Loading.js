@@ -1,7 +1,7 @@
 import {View, ActivityIndicator} from 'react-native';
 import React from 'react';
 
-export default function Loading() {
+export default function Loading({size}) {
   return (
     <View
       style={{
@@ -10,7 +10,7 @@ export default function Loading() {
         justifyContent: 'center',
         backgroundColor: '#212131',
       }}>
-      <ActivityIndicator size={50} color="#ccc" />
+      <ActivityIndicator size={size || 50} color="#ccc" />
     </View>
   );
 }

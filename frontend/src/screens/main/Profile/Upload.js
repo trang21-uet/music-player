@@ -17,7 +17,7 @@ export default function Upload() {
 
   const uploadFile = async () => {
     if (file !== null) {
-      const userInfo = await auth.user();
+      const userInfo = await auth.getUser();
       const data = new FormData();
       data.append('ownerId', userInfo.id);
       data.append('file', file);
@@ -50,8 +50,9 @@ export default function Upload() {
         type: [DocumentPicker.types.audio],
       });
       setFile(response[0]);
+      console.info(response[0]);
     } catch (error) {
-      console.info(error.message);
+      console.info(error);
       error.message === 'User canceled document picker' &&
         ToastAndroid.show('Canceled choosing file', 2000);
     }

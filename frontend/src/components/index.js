@@ -7,6 +7,9 @@ import InputGroup from './InputGroup';
 import RowOption from './RowOption';
 import Song from './Song';
 import SongWithCheckbox from './SongWithCheckbox';
+import SongWithNum from './SongWithNum';
+import Tabs from './Tab';
+import Playlist from './Playlist';
 
 export {
   Loading,
@@ -18,4 +21,7 @@ export {
   RowOption,
   Song,
   SongWithCheckbox,
+  SongWithNum,
+  Tabs,
+  Playlist,
 };

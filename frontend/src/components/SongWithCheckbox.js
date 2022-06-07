@@ -6,7 +6,7 @@ export default function SongWithCheckbox({track, checked, onCheck}) {
   const checkboxRef = useRef();
 
   return (
-    <TouchableNativeFeedback onPress={checkboxRef.current.onPress}>
+    <TouchableNativeFeedback onPress={checkboxRef.current?.onPress}>
       <View
         style={{
           width: '100%',

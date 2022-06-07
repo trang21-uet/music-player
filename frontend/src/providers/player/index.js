@@ -1,5 +1,11 @@
 import React, {createContext, useState, useEffect} from 'react';
-import TrackPlayer, {Capability} from 'react-native-track-player';
+import {ToastAndroid} from 'react-native';
+import TrackPlayer, {
+  Capability,
+  useTrackPlayerEvents,
+  Event,
+  State,
+} from 'react-native-track-player';
 import {Loading, Error} from '../../components';
 
 const PlayerContext = createContext(null);
@@ -8,6 +14,35 @@ const PlayerProvider = ({children}) => {
   const [tracks, setTracks] = useState([]);
   const [track, setTrack] = useState(null);
   const [status, setStatus] = useState('loading');
+  let timer;
+
+  useTrackPlayerEvents(
+    [Event.PlaybackTrackChanged, Event.PlaybackState],
+    event => {
+      if (event.type === Event.PlaybackState) {
+        if (event.state === State.Playing) {
+          timer = setTimeout(() => incraseListenedCount(track.id), 15000);
+        } else {
+          clearTimeout(timer);
+        }
+      } else if (event.type === Event.PlaybackTrackChanged) {
+        clearTimeout(timer);
+      }
+    },
+  );
+
+  const incraseListenedCount = async id => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/songs/incNumListened?id=${id}`,
+        {method: 'POST'},
+      );
+      const message = await response.text();
+      console.info({message});
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const setUpPlayer = async queue => {
     try {
@@ -71,8 +106,7 @@ const PlayerProvider = ({children}) => {
       {(status === 'Aborted' || status === 'Network request failed') && (
         <Error status={'Network request failed'} />
       )}
-      {status === 'No song' && children}
-      {status === 'success' && children}
+      {(status === 'No song' || status === 'success') && children}
     </PlayerContext.Provider>
   );
 };

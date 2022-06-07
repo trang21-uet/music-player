@@ -1,10 +1,28 @@
-import {View, Text, StyleSheet, TextInput, ScrollView} from 'react-native';
-import React, {forwardRef, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+  Animated,
+  Dimensions,
+} from 'react-native';
+import React, {
+  createRef,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Ranking from './Ranking';
-import {Pressable, Loading, Song} from '../../../components';
+import {Pressable, Loading, Song, Error, Tabs} from '../../../components';
 
-const SearchBar = forwardRef(({text, onChange}, ref) => {
+const {width} = Dimensions.get('window');
+
+const SearchBar = forwardRef(({onChange}, ref) => {
   const [focus, setFocus] = useState(false);
+  const [value, setValue] = useState('');
   return (
     <View style={styles.searchBox}>
       <Pressable
@@ -14,8 +32,11 @@ const SearchBar = forwardRef(({text, onChange}, ref) => {
         onPress={() => ref.current.blur()}
       />
       <TextInput
-        value={text}
-        onChangeText={value => onChange(value)}
+        value={value}
+        onChangeText={value => {
+          setValue(value);
+          onChange(value);
+        }}
         ref={ref}
         style={styles.searchInput}
         onFocus={() => setFocus(true)}
@@ -31,63 +52,129 @@ const SearchBar = forwardRef(({text, onChange}, ref) => {
         size={25}
         color="#000"
         style={{
-          display: text ? 'flex' : 'none',
+          display: value ? 'flex' : 'none',
           position: 'absolute',
           right: 10,
         }}
-        onPress={() => onChange('')}
+        onPress={() => {
+          setValue('');
+          onChange('');
+        }}
       />
     </View>
   );
 });
 
-const SearchResult = ({data}) => {
-  return (
-    <ScrollView
-      style={{display: data ? 'flex' : 'none'}}
-      contentContainerStyle={{width: '100%'}}>
-      {data.map((item, index) => (
-        <Song key={index} track={item} />
-      ))}
-    </ScrollView>
-  );
+const modes = {
+  all: 'All',
+  name: 'Songs',
+  artist: 'Artist',
+  album: 'Album',
 };
 
-export const Explore = () => {
-  const inputRef = useRef(null);
-  const [value, setValue] = useState('');
-  const [searchMode, setSearchMode] = useState('all');
+const tabs = Object.keys(modes).map(key => ({
+  key: key,
+  title: modes[key],
+  ref: createRef(),
+}));
+
+const TabScreen = ({query, mode}) => {
   const [result, setResult] = useState([]);
 
-  const search = async () => {
+  const search = async (query, mode) => {
     const url = {
-      all: `getTopSongsByParam?param=${value}&offset=0&limit=10`,
-      name: `getSongsByName?name=${value}&offset=0&limit=10`,
-      artist: `getSongsByArtist?artist=${value}&offset=0&limit=10`,
-      album: `getSongsByAlbum?album=${value}&offset=0&limit=10`,
+      all: `getTopSongsByParam?param=${query}&offset=0&limit=10`,
+      name: `getSongsByName?name=${query}&offset=0&limit=10`,
+      artist: `getSongsByArtist?artist=${query}&offset=0&limit=10`,
+      album: `getSongsByAlbum?album=${query}&offset=0&limit=10`,
     };
     try {
-      const response = await fetch(
-        'http://localhost:8080/songs/' + url[searchMode],
-      );
+      console.log(url[mode]);
+      const response = await fetch('http://localhost:8080/songs/' + url[mode]);
       const data = await response.json();
+      data.forEach(
+        track => (track.url = `http://localhost:8080/songs/${track.url}`),
+      );
       setResult(data);
     } catch (error) {
       console.error(error);
     }
   };
 
+  useEffect(() => {
+    search(query, mode);
+  }, []);
+
+  return (
+    <ScrollView>
+      <View style={{flex: 1, width}}>
+        {result.length === 0 ? (
+          <Error status="No songs found" />
+        ) : (
+          result.map((track, index) => (
+            <Song track={track} key={index} queue={result} index={index} />
+          ))
+        )}
+      </View>
+    </ScrollView>
+  );
+};
+
+const SearchResult = ({query}) => {
+  if (query === '') {
+    return null;
+  }
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const ref = useRef();
+
+  const onTabPress = useCallback(index => {
+    ref?.current?.scrollToOffset({
+      offset: index * width,
+    });
+  });
+
+  return (
+    <>
+      <Text
+        style={{
+          color: '#fff',
+          fontSize: 20,
+          fontWeight: '600',
+          marginVertical: 10,
+        }}>
+        Search Result
+      </Text>
+      <Tabs
+        data={tabs}
+        scrollX={scrollX}
+        onTabPress={onTabPress}
+        style={{paddingHorizontal: 5}}
+      />
+      <Animated.FlatList
+        ref={ref}
+        data={tabs}
+        renderItem={item => <TabScreen query={query} mode={item.item.key} />}
+        keyExtractor={item => item.key}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        pagingEnabled
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {x: scrollX}}}],
+          {useNativeDriver: false},
+        )}
+      />
+    </>
+  );
+};
+
+export const Explore = () => {
+  const inputRef = useRef(null);
+  const [query, setQuery] = useState('');
+
   return (
     <View style={styles.container}>
-      <SearchBar
-        ref={inputRef}
-        text={value}
-        onChange={async value => {
-          setValue(value);
-          value !== '' ? await search() : setResult([]);
-        }}
-      />
-      <SearchResult data={result} />
+      <SearchBar ref={inputRef} onChange={value => setQuery(value)} />
+      <SearchResult query={query} />
     </View>
   );
 };
@@ -103,6 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
+    marginHorizontal: 10,
     paddingHorizontal: 10,
     backgroundColor: '#ccc',
     borderRadius: 10,

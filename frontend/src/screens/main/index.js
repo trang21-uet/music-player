@@ -3,7 +3,13 @@ import {View, Dimensions} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Home from './Home';
 import {Explore, Ranking} from './Explore';
-import Profile, {Upload, UserInfo, Setting, ManageSong} from './Profile';
+import Profile, {
+  Upload,
+  UserInfo,
+  Setting,
+  ManageSong,
+  Playlists,
+} from './Profile';
 import {NavigationBar} from '../../components';
 import {PlayerWidget} from '../Player';
 
@@ -11,7 +17,7 @@ const Tab = createNativeStackNavigator();
 const {height} = Dimensions.get('window');
 const profileScreenOptions = {
   headerShown: true,
-  headerStyle: {backgroundColor: '#313139'},
+  headerStyle: {backgroundColor: '#313141'},
   animation: 'slide_from_right',
 };
 
@@ -41,6 +47,11 @@ export default function MainScreen() {
             name="ManageSong"
             component={ManageSong}
             options={{...profileScreenOptions, title: 'Manage songs'}}
+          />
+          <Tab.Screen
+            name="Playlists"
+            component={Playlists}
+            options={{...profileScreenOptions}}
           />
         </Tab.Navigator>
       </View>

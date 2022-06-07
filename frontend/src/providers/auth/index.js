@@ -8,10 +8,18 @@ const AuthContext = React.createContext(null);
 const AuthProvider = ({children}) => {
   const navigation = useNavigation();
 
-  const user = async () => {
+  const getUser = async () => {
     try {
       const data = await AsyncStorage.getItem('user');
       return data !== null ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const setUser = async user => {
+    try {
+      await AsyncStorage.setItem('user', JSON.stringify(user));
     } catch (error) {
       console.error(error);
     }
@@ -35,6 +43,7 @@ const AuthProvider = ({children}) => {
       } else {
         await AsyncStorage.setItem('user', JSON.stringify(data));
         ToastAndroid.show('Login successfully!', 2000);
+        navigation.navigate('Home');
       }
     } catch (error) {
       console.error(error);
@@ -62,7 +71,7 @@ const AuthProvider = ({children}) => {
     navigation.navigate('Home');
   };
 
-  const value = {user, login, register, logout};
+  const value = {getUser, setUser, login, register, logout};
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

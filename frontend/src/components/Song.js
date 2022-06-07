@@ -1,12 +1,21 @@
-import {Text, View, Image, TouchableNativeFeedback} from 'react-native';
-import React from 'react';
+import {
+  Text,
+  View,
+  Image,
+  TouchableNativeFeedback,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {usePlayer} from '../providers';
 import Pressable from './Pressable';
 import TrackPlayer from 'react-native-track-player';
+import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function Song({track, queue, index}) {
   const player = usePlayer();
-  const playing = player.track === track;
+  const [playing, setPlaying] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const updateQueue = async () => {
     await TrackPlayer.destroy();
@@ -14,7 +23,12 @@ export default function Song({track, queue, index}) {
     player.setTrack(track);
     await TrackPlayer.skip(index);
     await TrackPlayer.play();
+    console.info(track);
   };
+
+  useEffect(() => {
+    setPlaying(player.track?.url === track.url);
+  }, [player.track]);
 
   return (
     <TouchableNativeFeedback onPress={updateQueue}>
@@ -22,10 +36,9 @@ export default function Song({track, queue, index}) {
         style={{
           width: '100%',
           flexDirection: 'row',
-          paddingVertical: 10,
-          paddingHorizontal: 10,
+          padding: 10,
           alignItems: 'center',
-          backgroundColor: playing ? '#2E8B57' : 'transparent',
+          backgroundColor: playing ? '#2E7F4B' : 'transparent',
           borderRadius: 10,
         }}>
         <Image
@@ -57,7 +70,46 @@ export default function Song({track, queue, index}) {
           </View>
         </View>
 
-        <Pressable icon="ellipsis-vertical" size={20} />
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <MCIcon name="playlist-plus" size={30} />
+        </TouchableOpacity>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(!modalVisible)}>
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View
+              style={{
+                flexDirection: 'column',
+                margin: 20,
+                padding: 15,
+                backgroundColor: '#414151',
+                borderRadius: 10,
+                shadowColor: '#918181',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={{fontSize: 18, color: '#fff'}}>
+                  Add to playlist
+                </Text>
+                <Pressable
+                  icon="close"
+                  onPress={() => setModalVisible(false)}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </TouchableNativeFeedback>
   );

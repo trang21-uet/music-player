@@ -13,6 +13,7 @@ import {
 import React, {forwardRef, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../providers';
+import {Pressable} from '../../components';
 
 const Input = forwardRef((props, ref) => {
   const [focus, setFocus] = useState(false);
@@ -57,12 +58,23 @@ const LoginForm = () => {
 
   const submit = async () => {
     await auth.login(JSON.stringify(data));
-    navigation.navigate('Profile');
   };
 
   return (
-    <>
-      <Text style={{fontSize: 20}}>LOG IN</Text>
+    <View style={styles.container}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <Text
+          style={{
+            fontSize: 20,
+            color: '#fff',
+            fontWeight: '600',
+            textAlign: 'center',
+          }}>
+          Login
+        </Text>
+
+        <Pressable icon="close" onPress={navigation.goBack} />
+      </View>
       <Input
         ref={usernameRef}
         title="Username"
@@ -94,7 +106,7 @@ const LoginForm = () => {
           </Text>
         </View>
       </TouchableNativeFeedback>
-    </>
+    </View>
   );
 };
 
@@ -115,8 +127,20 @@ const SignupForm = () => {
   };
 
   return (
-    <>
-      <Text style={{fontSize: 20}}>SIGN UP</Text>
+    <View style={styles.container}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <Text
+          style={{
+            fontSize: 20,
+            color: '#fff',
+            fontWeight: '600',
+            textAlign: 'center',
+          }}>
+          Sign up
+        </Text>
+
+        <Pressable icon="close" onPress={navigation.goBack} />
+      </View>
       <Input
         ref={usernameRef}
         title="Username"
@@ -148,7 +172,7 @@ const SignupForm = () => {
           </Text>
         </View>
       </TouchableNativeFeedback>
-    </>
+    </View>
   );
 };
 
@@ -156,9 +180,8 @@ const TipText = ({isLoginScreen, onPress}) => {
   return (
     <View
       style={{
-        position: 'absolute',
-        bottom: 30,
         flexDirection: 'row',
+        justifyContent: 'center',
       }}>
       <Text style={{color: '#999', fontSize: 16}}>
         {isLoginScreen
@@ -176,13 +199,33 @@ const TipText = ({isLoginScreen, onPress}) => {
 
 export default function AuthScreen() {
   const [isLoginScreen, setIsLoginScreen] = useState(true);
+  const navigation = useNavigation();
 
   return (
-    <KeyboardAvoidingView behavior="height" style={{flex: 1}}>
+    <KeyboardAvoidingView
+      behavior="height"
+      style={{flex: 1}}
+      keyboardVerticalOffset={-100}>
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardDismissMode="on-drag">
-        {isLoginScreen ? <LoginForm /> : <SignupForm />}
+        {isLoginScreen ? (
+          <>
+            <LoginForm />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                marginBottom: 10,
+              }}>
+              <Pressable icon="logo-google" style={{padding: 10}} />
+              <Pressable icon="logo-facebook" style={{padding: 10}} />
+            </View>
+          </>
+        ) : (
+          <SignupForm />
+        )}
+
         <TipText
           isLoginScreen={isLoginScreen}
           onPress={() => setIsLoginScreen(!isLoginScreen)}
@@ -196,8 +239,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    paddingHorizontal: 20,
-    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 20,
   },
   input: {
     paddingHorizontal: 15,

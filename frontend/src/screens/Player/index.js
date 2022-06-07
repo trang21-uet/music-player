@@ -28,14 +28,10 @@ import {usePlayer} from '../../providers';
 
 const {height} = Dimensions.get('window');
 
-const togglePlayback = async playbackState => {
-  const currentTrack = await TrackPlayer.getCurrentTrack();
-
-  currentTrack &&
-    (playbackState === State.Paused
-      ? await TrackPlayer.play()
-      : await TrackPlayer.pause());
-};
+const togglePlayback = async playbackState =>
+  playbackState === State.Paused
+    ? await TrackPlayer.play()
+    : await TrackPlayer.pause();
 
 export default function Player() {
   const navigation = useNavigation();
@@ -48,7 +44,6 @@ export default function Player() {
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
       const track = await TrackPlayer.getTrack(event.nextTrack);
       player.setTrack(track);
-      console.info({track});
     }
   });
 
@@ -149,7 +144,7 @@ export default function Player() {
                 ToastAndroid.show('Added to favorites!', ToastAndroid.SHORT)
               }
             />
-            <TouchableOpacity onPress={() => navigation.navigate('Playlist')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Playing')}>
               <MCicon name="playlist-music" size={30} color="#ccc" />
             </TouchableOpacity>
           </View>
@@ -346,5 +341,5 @@ const styles = StyleSheet.create({
 });
 
 import PlayerMenu from './PlayerMenu';
-import Playlist from './Playlist';
-export {PlayerMenu, Playlist};
+import Playing from './Playing';
+export {PlayerMenu, Playing};

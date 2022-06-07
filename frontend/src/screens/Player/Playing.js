@@ -4,18 +4,18 @@ import {Pressable, Song} from '../../components';
 import {useNavigation} from '@react-navigation/native';
 import TrackPlayer from 'react-native-track-player';
 
-const SongList = ({tracks}) => {
+const SongList = ({queue}) => {
   return (
     <ScrollView>
-      {tracks.length > 0 &&
-        tracks.map((track, index) => (
-          <Song track={track} key={index} queue={tracks} />
+      {queue.length > 0 &&
+        queue.map((track, index) => (
+          <Song track={track} key={index} queue={queue} index={index} />
         ))}
     </ScrollView>
   );
 };
 
-export default function Playlist() {
+export default function Playing() {
   const navigation = useNavigation();
   const [queue, setQueue] = useState([]);
 
@@ -45,7 +45,7 @@ export default function Playlist() {
         }}>
         Playing
       </Text>
-      <SongList tracks={queue} />
+      <SongList queue={queue} />
     </View>
   );
 }

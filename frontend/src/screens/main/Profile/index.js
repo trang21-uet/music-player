@@ -20,7 +20,7 @@ export default function Profile() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    auth.user().then(user => setUser(user));
+    auth.getUser().then(user => setUser(user));
   }, []);
 
   return (
@@ -32,14 +32,14 @@ export default function Profile() {
         imageStyle={{opacity: 0.2, width}}>
         <View style={styles.profilePic}>
           <TouchableNativeFeedback
-            onPress={() => navigation.navigate('UserInfo')}>
+            onPress={() => user && navigation.navigate('UserInfo')}>
             <Image
               source={
                 user
                   ? {uri: `http://localhost:8080/avatars/${user.avatar}`}
                   : require('../../../assets/images/default.png')
               }
-              style={{height: 80, width: 80}}
+              style={{height: 80, width: 80, borderRadius: 40}}
             />
           </TouchableNativeFeedback>
         </View>
@@ -75,6 +75,13 @@ export default function Profile() {
         />
         {user ? (
           <>
+            <RowOption
+              icon="musical-notes-outline"
+              title="Your playlists"
+              onPress={() => {
+                navigation.navigate('Playlists');
+              }}
+            />
             <RowOption
               icon="person-outline"
               title="Your infomations"
@@ -123,7 +130,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
   },
   profilePic: {
     width: 80,
@@ -149,4 +156,5 @@ import Setting from './Setting';
 import Upload from './Upload';
 import UserInfo from './UserInfo';
 import ManageSong from './ManageSong';
-export {Setting, Upload, UserInfo, ManageSong};
+import Playlists from './Playlists';
+export {Setting, Upload, UserInfo, ManageSong, Playlists};
