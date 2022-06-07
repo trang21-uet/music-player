@@ -41,6 +41,14 @@ public class SongRepositoryImpl extends AbsMysqlRepository<Song, SongRecord> {
                 .execute();
     }
 
+    public Song getSongByFileName(String fileName) {
+        return dslContext.select()
+                .from(this.getTable())
+                .where(SONG.FILE_NAME.eq(fileName))
+                .and(SONG.IS_CHECKED.eq(true))
+                .fetchOneInto(pClass);
+    }
+
     public List<Song> getSongsByName(String name, int offset, int limit) {
         return dslContext.select()
                 .from(this.getTable())

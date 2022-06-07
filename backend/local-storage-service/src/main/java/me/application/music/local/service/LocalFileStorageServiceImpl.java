@@ -104,7 +104,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     @Override
     public Resource loadSong(String filename) {
         try {
-            Song song = songRepository.getSongsByName(filename, 0, 1).get(0);
+            Song song = songRepository.getSongByFileName(filename);
             if(song.getIsChecked()) {
                 Path file = root.resolve("songs/" + filename);
                 Resource resource = new UrlResource(file.toUri());
