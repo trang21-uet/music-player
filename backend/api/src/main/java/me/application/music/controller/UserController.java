@@ -1,7 +1,6 @@
 package me.application.music.controller;
 
 import me.application.music.dto.UserRequest;
-import me.application.music.music_application.tables.pojos.User;
 import me.application.music.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
