@@ -1,21 +1,16 @@
 import React, {createContext, useState, useEffect} from 'react';
 import TrackPlayer, {Capability} from 'react-native-track-player';
-import {Loading} from '../../components';
+import {Loading, Error} from '../../components';
 
 const PlayerContext = createContext(null);
 
 const PlayerProvider = ({children}) => {
-  const [tracks, setTracks] = useState();
-  const [track, setTrack] = useState();
-  const [loading, setLoading] = useState(true);
+  const [tracks, setTracks] = useState([]);
+  const [track, setTrack] = useState(null);
+  const [status, setStatus] = useState('loading');
 
-  const setUpPlayer = async () => {
+  const setUpPlayer = async queue => {
     try {
-      const response = await fetch('http://192.168.1.20:8080/songs');
-      const data = await response.json();
-      setTracks(data);
-      setTrack(data[0]);
-
       await TrackPlayer.setupPlayer();
       await TrackPlayer.updateOptions({
         stopWithApp: false,
@@ -34,22 +29,50 @@ const PlayerProvider = ({children}) => {
           Capability.Stop,
         ],
       });
-      await TrackPlayer.add(data);
+      await TrackPlayer.add(queue);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const getAllSongs = async () => {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch('http://localhost:8080/songs', {
+        method: 'GET',
+        signal: controller.signal,
+      });
+      clearTimeout(id);
+      const data = await response.json();
+      if (data.length === 0) {
+        setStatus('No song');
+      } else {
+        data.forEach(
+          track => (track.url = `http://localhost:8080/songs/${track.url}`),
+        );
+        setTracks(data);
+        setStatus('success');
+      }
+    } catch (error) {
+      setStatus(error.message);
     }
   };
 
   useEffect(() => {
-    setUpPlayer();
+    getAllSongs();
     return TrackPlayer.destroy();
   }, []);
 
   return (
-    <PlayerContext.Provider value={{tracks, track, setTrack, loading}}>
-      {loading ? <Loading /> : children}
+    <PlayerContext.Provider value={{tracks, track, setTrack, setUpPlayer}}>
+      {status === 'loading' && <Loading />}
+      {(status === 'Aborted' || status === 'Network request failed') && (
+        <Error status={'Network request failed'} />
+      )}
+      {status === 'No song' && children}
+      {status === 'success' && children}
     </PlayerContext.Provider>
   );
 };

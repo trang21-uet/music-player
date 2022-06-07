@@ -2,7 +2,15 @@ import React from 'react';
 import {StatusBar} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MainScreen, AuthScreen, Setting, Player, PlayerMenu} from './screens';
+import {
+  MainScreen,
+  AuthScreen,
+  Setting,
+  Upload,
+  Player,
+  PlayerMenu,
+  Playlist,
+} from './screens';
 import {AuthProvider, PlayerProvider} from './providers';
 
 const Stack = createNativeStackNavigator();
@@ -10,7 +18,7 @@ const Stack = createNativeStackNavigator();
 const myTheme = {
   dark: true,
   colors: {
-    background: '#313141',
+    background: '#212131',
     text: '#ccc',
   },
 };
@@ -35,6 +43,7 @@ export default function App() {
               options={{
                 headerShown: true,
                 headerStyle: {backgroundColor: '#313139'},
+                animation: 'slide_from_right',
               }}
             />
             <Stack.Screen
@@ -42,6 +51,7 @@ export default function App() {
               component={PlayerMenu}
               options={{animation: 'slide_from_bottom'}}
             />
+            <Stack.Screen name="Playlist" component={Playlist} />
             <Stack.Screen name="AuthScreen" component={AuthScreen} />
           </Stack.Navigator>
         </PlayerProvider>

@@ -4,7 +4,7 @@ import React from 'react';
 export default function Ranking() {
   return (
     <View style={styles.container}>
-      <Text>Ranking</Text>
+      <Text style={{color: '#ccc'}}>Ranking</Text>
     </View>
   );
 }

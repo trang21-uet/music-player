@@ -42,8 +42,7 @@ const Button = ({title, icon, selected, setSelected}) => {
       onPress={() => {
         navigation.navigate(title);
         setSelected(title);
-      }}
-      background={TouchableNativeFeedback.Ripple('#2E8B57', false)}>
+      }}>
       <View style={styles.button}>
         <Ionicons
           name={icon}
@@ -65,10 +64,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderTopColor: '#414141',
     borderTopWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   button: {
     flex: 1,

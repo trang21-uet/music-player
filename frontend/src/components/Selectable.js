@@ -2,7 +2,13 @@ import {TouchableOpacity} from 'react-native';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import React, {useState} from 'react';
 
-export default function Selectable({style, icon, size, onPress}) {
+export default function Selectable({
+  style,
+  icon,
+  alternativeIcon,
+  size,
+  onPress,
+}) {
   const [selected, setSelected] = useState(false);
   return (
     <TouchableOpacity
@@ -12,7 +18,7 @@ export default function Selectable({style, icon, size, onPress}) {
       }}
       style={style}>
       <Ionicon
-        name={icon}
+        name={alternativeIcon ? (selected ? alternativeIcon : icon) : icon}
         size={size ? size : 30}
         color={selected ? '#2E8B57' : '#ccc'}
       />
