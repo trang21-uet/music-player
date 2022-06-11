@@ -157,14 +157,14 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     @SneakyThrows
     public List<Song> getFileInfos() {
         List<Song> songs = songRepository.findAll();
-        songs.forEach(song -> {
-            try {
-                song.setUrl(UriComponentsBuilder.fromPath(song.getUrl()).build().encode().toString());
-                song.setCoverImage(UriComponentsBuilder.fromPath(song.getCoverImage()).build().encode().toString());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+//        songs.forEach(song -> {
+//            try {
+//                song.setUrl(UriComponentsBuilder.fromPath(song.getUrl()).build().encode().toString());
+//                song.setCoverImage(UriComponentsBuilder.fromPath(song.getCoverImage()).build().encode().toString());
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
 
         return songs;
     }
