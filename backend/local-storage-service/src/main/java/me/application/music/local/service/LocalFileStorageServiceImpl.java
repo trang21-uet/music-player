@@ -74,7 +74,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         Song song = new Song();
         song.setFileName(path.getFileName().toString());
         song.setArtist(metadata.getOrDefault("xmpDM:artist", null));
-        song.setUrl(path.getFileName().toString());
+        song.setUrl(UriComponentsBuilder.fromPath(path.getFileName().toString()).build().encode().toString());
         song.setOwnerId(Long.valueOf(ownerId));
         song.setTitle(metadata.getOrDefault("dc:title", null));
         song.setDuration(Double.valueOf(metadata.getOrDefault("xmpDM:duration", "0")));
@@ -95,7 +95,12 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
             BufferedImage icon = mp3.getTag().getFirstArtwork().getImage();
             String imageUrl = root + "/covers/" + path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png";
             ImageIO.write(icon, "png", new File(imageUrl));
-            song.setCoverImage(path.toFile().getName().replaceFirst("[.][^.]+$", "") + ".png");
+            song.setCoverImage(UriComponentsBuilder.fromPath(path.toFile()
+                            .getName()
+                            .replaceFirst("[.][^.]+$", "") + ".png")
+                    .build()
+                    .encode()
+                    .toString());
         } catch (Exception e) {
             song.setCoverImage("default.png");
         }
@@ -105,7 +110,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     public Resource loadSong(String filename) {
         try {
             Song song = songRepository.getSongByFileName(filename);
-            if(song.getIsChecked()) {
+            if (song.getIsChecked()) {
                 Path file = root.resolve("songs/" + filename);
                 Resource resource = new UrlResource(file.toUri());
                 if (resource.exists() || resource.isReadable()) {
