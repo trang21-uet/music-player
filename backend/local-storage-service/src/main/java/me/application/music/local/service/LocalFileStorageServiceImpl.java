@@ -1,6 +1,7 @@
 package me.application.music.local.service;
 
 import lombok.SneakyThrows;
+import me.application.music.dto.SongRequest;
 import me.application.music.music_application.tables.pojos.Song;
 import me.application.music.repository.impl.SongRepositoryImpl;
 import org.apache.tika.metadata.Metadata;
@@ -56,11 +57,11 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     }
 
     @Override
-    public void save(MultipartFile file, String ownerId, String region) {
+    public void save(SongRequest songRequest) {
         try {
-            Path path = this.root.resolve("songs/" + Objects.requireNonNull(file.getOriginalFilename()));
-            Files.copy(file.getInputStream(), path);
-            Song song = createMetadataSong(ownerId, region, path);
+            Path path = this.root.resolve("songs/" + Objects.requireNonNull(songRequest.getFile().getOriginalFilename()));
+            Files.copy(songRequest.getFile().getInputStream(), path);
+            Song song = createMetadataSong(songRequest, path);
 
             songRepository.createOne(song);
 
@@ -69,19 +70,19 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         }
     }
 
-    private Song createMetadataSong(String ownerId, String region, Path path) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+    private Song createMetadataSong(SongRequest songRequest, Path path) throws IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
         Map<String, String> metadata = this.getFileMetadata(path);
         Song song = new Song();
         song.setFileName(path.getFileName().toString());
-        song.setArtist(metadata.getOrDefault("xmpDM:artist", null));
+        song.setArtist(songRequest.getArtist() == null ? metadata.getOrDefault("xmpDM:artist", null) : songRequest.getArtist());
         song.setUrl(UriComponentsBuilder.fromPath(path.getFileName().toString()).build().encode().toString());
-        song.setOwnerId(Long.valueOf(ownerId));
-        song.setTitle(metadata.getOrDefault("dc:title", null));
+        song.setOwnerId(Long.valueOf(songRequest.getOwnerId()));
+        song.setTitle(songRequest.getTitle() == null ? metadata.getOrDefault("dc:title", null) : songRequest.getTitle());
         song.setDuration(Double.valueOf(metadata.getOrDefault("xmpDM:duration", "0")));
         song.setNumListened(0L);
         song.setGenre(metadata.getOrDefault("xmpDM:genre", null));//chu y thay doi
-        song.setRegion(region);
-        song.setAlbum(metadata.getOrDefault("xmpDM:album", null));
+        song.setRegion(songRequest.getRegion());
+        song.setAlbum(songRequest.getAlbum() == null ? metadata.getOrDefault("xmpDM:album", null) : songRequest.getAlbum());
         song.setNumTrack(Long.valueOf(metadata.getOrDefault("xmpDM:trackNumber", "1")));
         song.setIsChecked(false);
 

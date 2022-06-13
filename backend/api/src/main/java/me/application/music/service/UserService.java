@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -32,8 +33,10 @@ public class UserService {
         return userReposotory.findById(id);
     }
 
-    public Integer update(UserRequest userRequest) {
-        return userReposotory.update(this.toUser(userRequest));
+    public User update(UserRequest userRequest) {
+        User user = this.toUser(userRequest);
+        userReposotory.update(user);
+        return user;
     }
 
     public Integer delete(String id) {
@@ -57,7 +60,7 @@ public class UserService {
         try {
             Path path = this.root.resolve("avatars/" + Objects.requireNonNull(userRequest.getAvatar().getOriginalFilename()));
             Files.copy(userRequest.getAvatar().getInputStream(), path);
-            user.setAvatar(userRequest.getAvatar().getOriginalFilename());
+            user.setAvatar(UriComponentsBuilder.fromPath(userRequest.getAvatar().getOriginalFilename()).build().encode().toString());
         } catch (Exception e) {
             user.setAvatar(null);
         }
