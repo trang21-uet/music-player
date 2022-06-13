@@ -38,8 +38,9 @@ public class PlaylistController {
     }
 
     @DeleteMapping("/playlist/songs/{id}")
-    public ResponseEntity<String> deleteSongInPlaylist(@PathVariable String id) {
-        playlistService.deleteSongInPlaylist(id);
+    public ResponseEntity<String> deleteSongInPlaylist(@RequestParam String playlistId,
+                                                       @RequestParam String songId) {
+        playlistService.deleteSongInPlaylist(playlistId, songId);
         return ResponseEntity.ok("Success");
     }
 

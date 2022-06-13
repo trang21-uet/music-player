@@ -29,4 +29,11 @@ public class PlaylistSongRepositoryImpl extends AbsMysqlRepository<PlaylistSongs
                 .where(PLAYLIST_SONGS.PLAYLIST_ID.eq(Long.valueOf(playlistId)))
                 .fetchInto(PlaylistSongs.class);
     }
+
+    public Integer deleteSongByPlaylistIdAndSongId(String playlistId, String songId) {
+        return dslContext.delete(PLAYLIST_SONGS)
+                .where(PLAYLIST_SONGS.PLAYLIST_ID.eq(Long.valueOf(playlistId)))
+                .and(PLAYLIST_SONGS.SONG_ID.eq(songId))
+                .execute();
+    }
 }

@@ -1,5 +1,6 @@
 package me.application.music.controller;
 
+import me.application.music.dto.SongRequest;
 import me.application.music.music_application.tables.pojos.Song;
 import me.application.music.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +43,8 @@ public class SongController {
     }
 
     @PostMapping("upload")
-    public ResponseEntity<String> uploadSong(@RequestParam MultipartFile file,
-                                             @RequestParam String ownerId,
-                                             @RequestParam(defaultValue = "null") String region) {
-        localFileStorageService.save(file, ownerId, region);
+    public ResponseEntity<String> uploadSong(@ModelAttribute SongRequest songRequest) {
+        localFileStorageService.save(songRequest);
         return ResponseEntity.ok("Upload Success");
     }
 

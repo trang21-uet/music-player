@@ -49,8 +49,8 @@ public class PlaylistService {
         return 1;
     }
 
-    public Integer deleteSongInPlaylist(String id) {
-        playlistSongRepository.delete(id);
+    public Integer deleteSongInPlaylist(String playlistId, String songId) {
+        playlistSongRepository.deleteSongByPlaylistIdAndSongId(playlistId, songId);
         return 1;
     }
 
