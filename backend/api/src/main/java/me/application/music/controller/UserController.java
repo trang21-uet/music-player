@@ -16,9 +16,9 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<?> findById(@RequestParam(required = false, defaultValue = "") String id,
-                                         @RequestParam(required = false, defaultValue = "") String username) {
-        if(id.equals("")) {
-            if(username.equals("")) {
+                                      @RequestParam(required = false, defaultValue = "") String username) {
+        if (id.equals("")) {
+            if (username.equals("")) {
                 return ResponseEntity.ok(userService.findAll());
             } else {
                 return ResponseEntity.ok(userService.findByUsername(username));
@@ -45,10 +45,14 @@ public class UserController {
 
     @GetMapping("avatars/{avatar}")
     public ResponseEntity<Resource> getAvatar(@PathVariable String avatar) {
-        Resource file = userService.loadImage(avatar);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        try {
+            Resource file = userService.loadImage(avatar);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
