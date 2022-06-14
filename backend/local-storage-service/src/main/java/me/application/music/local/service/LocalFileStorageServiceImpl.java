@@ -146,6 +146,7 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         FileSystemUtils.deleteRecursively(Paths.get(this.root + "/songs").toFile());
     }
 
+
     @Override
     public Stream<Path> loadAll() {
         try {
@@ -153,6 +154,16 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Could not load the files!");
         }
+    }
+
+    @SneakyThrows
+    @Override
+    public String delete(String id) {
+        Song song = songRepository.findById(id);
+        FileSystemUtils.deleteRecursively(Paths.get(this.root + "/songs" + song.getFileName()).toFile());
+        if (!song.getCoverImage().equals("default.png"))
+            FileSystemUtils.deleteRecursively(Paths.get(this.root + "/covers" + song.getFileName()).toFile());
+        return "Success!";
     }
 
     @SneakyThrows

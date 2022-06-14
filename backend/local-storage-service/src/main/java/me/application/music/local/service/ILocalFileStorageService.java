@@ -15,4 +15,6 @@ public interface ILocalFileStorageService {
     Resource loadImage(String imageName);
     void deleteAll();
     Stream<Path> loadAll();
+
+    String delete(String id);
 }

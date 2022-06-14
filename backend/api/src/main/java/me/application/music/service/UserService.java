@@ -59,10 +59,11 @@ public class UserService {
         user.setUsername(userRequest.getUsername());
         try {
             Path path = this.root.resolve("avatars/" + Objects.requireNonNull(userRequest.getAvatar().getOriginalFilename()));
+            if (user.getAvatar() != "default.png") Files.delete(this.root.resolve("avatars/" + Objects.requireNonNull(user.getAvatar())));
             Files.copy(userRequest.getAvatar().getInputStream(), path);
             user.setAvatar(UriComponentsBuilder.fromPath(userRequest.getAvatar().getOriginalFilename()).build().encode().toString());
         } catch (Exception e) {
-            user.setAvatar(null);
+            user.setAvatar("default.png");
         }
         return user;
     }

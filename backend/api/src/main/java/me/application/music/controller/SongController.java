@@ -28,24 +28,45 @@ public class SongController {
 
     @GetMapping("songs/{fileName}")
     public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
-        Resource file = localFileStorageService.loadSong(fileName);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        try {
+            Resource file = localFileStorageService.loadSong(fileName);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("images/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
-        Resource file = localFileStorageService.loadImage(imageName);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        try {
+            Resource file = localFileStorageService.loadImage(imageName);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("upload")
     public ResponseEntity<String> uploadSong(@ModelAttribute SongRequest songRequest) {
-        localFileStorageService.save(songRequest);
-        return ResponseEntity.ok("Upload Success");
+        try {
+            localFileStorageService.save(songRequest);
+            return ResponseEntity.ok("Upload Success");
+        } catch (Exception e) {
+            return ResponseEntity.ok("File đã tồn tại");
+        }
+    }
+
+    @DeleteMapping("/songs/{id}")
+    public ResponseEntity<String> deleteSong(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(localFileStorageService.delete(id));
+        } catch (Exception e) {
+            return ResponseEntity.ok("Không tìm thấy resource");
+        }
     }
 
     @PostMapping("songs/incNumListened")
@@ -68,22 +89,22 @@ public class SongController {
 
     @GetMapping("songs/getSongsByArtist")
     public ResponseEntity<List<Song>> getSongsByArtist(@RequestParam String artist,
-                                                     @RequestParam Integer offset,
-                                                     @RequestParam Integer limit) {
+                                                       @RequestParam Integer offset,
+                                                       @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getSongsByArtist(artist, offset, limit));
     }
 
     @GetMapping("songs/getSongsByAlbum")
     public ResponseEntity<List<Song>> getSongsByAlbum(@RequestParam String album,
-                                                     @RequestParam Integer offset,
-                                                     @RequestParam Integer limit) {
+                                                      @RequestParam Integer offset,
+                                                      @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getSongsByAlbum(album, offset, limit));
     }
 
     @GetMapping("songs/getTopSongsByParam")
     public ResponseEntity<List<Song>> getTopSongsByParam(@RequestParam String param,
-                                                     @RequestParam Integer offset,
-                                                     @RequestParam Integer limit) {
+                                                         @RequestParam Integer offset,
+                                                         @RequestParam Integer limit) {
         return ResponseEntity.ok(songService.getTopSongsByParam(param, offset, limit));
     }
 
