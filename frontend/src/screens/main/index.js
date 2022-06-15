@@ -6,18 +6,18 @@ import {Explore, Ranking} from './Explore';
 import Profile, {
   Upload,
   UserInfo,
-  Setting,
   ManageSong,
   Playlists,
+  PlaylistSong,
+  AddSongToPlaylist,
 } from './Profile';
-import {NavigationBar} from '../../components';
+import {NavigationBar, SongsList} from '../../components';
 import {PlayerWidget} from '../Player';
 
 const Tab = createNativeStackNavigator();
 const {height} = Dimensions.get('window');
 const profileScreenOptions = {
   headerShown: true,
-  headerStyle: {backgroundColor: '#313141'},
   animation: 'slide_from_right',
 };
 
@@ -31,28 +31,13 @@ export default function MainScreen() {
           <Tab.Screen name="Explore" component={Explore} />
           <Tab.Screen name="Ranking" component={Ranking} />
           <Tab.Screen name="Profile" component={Profile} />
-
-          <Tab.Screen
-            name="Upload"
-            component={Upload}
-            options={{...profileScreenOptions, title: 'Upload song'}}
-          />
+          <Tab.Screen name="SongsList" component={SongsList} />
+          <Tab.Screen name="Upload" component={Upload} />
           <Tab.Screen name="UserInfo" component={UserInfo} />
-          <Tab.Screen
-            name="Setting"
-            component={Setting}
-            options={profileScreenOptions}
-          />
-          <Tab.Screen
-            name="ManageSong"
-            component={ManageSong}
-            options={{...profileScreenOptions, title: 'Manage songs'}}
-          />
-          <Tab.Screen
-            name="Playlists"
-            component={Playlists}
-            options={{...profileScreenOptions}}
-          />
+          <Tab.Screen name="ManageSong" component={ManageSong} />
+          <Tab.Screen name="Playlists" component={Playlists} />
+          <Tab.Screen name="PlaylistSong" component={PlaylistSong} />
+          <Tab.Screen name="AddSongToPlaylist" component={AddSongToPlaylist} />
         </Tab.Navigator>
       </View>
       <PlayerWidget />

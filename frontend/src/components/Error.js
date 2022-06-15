@@ -8,7 +8,7 @@ export default function Error({status}) {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#212131',
+        backgroundColor: '#111',
       }}>
       <Image
         source={require('../assets/images/paimon_sleep.png')}

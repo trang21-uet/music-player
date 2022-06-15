@@ -4,14 +4,15 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  ToastAndroid,
   ImageBackground,
   Image,
   ScrollView,
   Animated,
   Easing,
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import TrackPlayer, {
   State,
@@ -22,11 +23,12 @@ import TrackPlayer, {
   useTrackPlayerEvents,
 } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
-import {Selectable, Pressable} from '../../components';
+import {Pressable} from '../../components';
 import MCicon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MenuModal from './MenuModal';
 import {usePlayer} from '../../providers';
 
-const {height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const togglePlayback = async playbackState =>
   playbackState === State.Paused
@@ -36,16 +38,29 @@ const togglePlayback = async playbackState =>
 export default function Player() {
   const navigation = useNavigation();
   const player = usePlayer();
-  const {position, buffered, duration} = useProgress();
+  const {title, artist, fileName, coverImage} = player.track;
+  const {position, duration} = useProgress();
   const playbackState = usePlaybackState();
-  const [repeat, setRepeat] = useState('off');
+  const [repeat, setRepeat] = useState('queue');
+  const [modalVisible, setModalVisible] = useState(false);
 
-  useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
-    if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
-      const track = await TrackPlayer.getTrack(event.nextTrack);
-      player.setTrack(track);
-    }
-  });
+  useTrackPlayerEvents(
+    [Event.PlaybackTrackChanged, Event.PlaybackQueueEnded],
+    async event => {
+      if (
+        event.type === Event.PlaybackTrackChanged &&
+        event.nextTrack !== undefined
+      ) {
+        const track = await TrackPlayer.getTrack(event.nextTrack);
+        player.setTrack(track);
+      }
+      if (event.type === Event.PlaybackQueueEnded) {
+        TrackPlayer.stop();
+        player.setTrack({});
+        navigation.navigate('Home');
+      }
+    },
+  );
 
   const changeRepeatMode = () => {
     if (repeat === 'off') {
@@ -70,54 +85,77 @@ export default function Player() {
 
   return (
     <ImageBackground
-      source={{uri: `http://localhost:8080/images/${player.track.coverImage}`}}
+      source={
+        coverImage
+          ? {uri: `http://localhost:8080/images/${coverImage}`}
+          : require('../../assets/images/disc.png')
+      }
       resizeMode="cover"
       style={{height: height}}
-      imageStyle={{opacity: 0.3}}>
-      <View style={styles.container}>
+      imageStyle={{opacity: 0.2}}>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(!modalVisible)}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={{width, height, justifyContent: 'flex-end'}}
+          onPress={() => setModalVisible(false)}>
+          <TouchableWithoutFeedback activeOpacity={1}>
+            <MenuModal setModalVisible={setModalVisible} />
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
+      <View style={[styles.container, {opacity: modalVisible ? 0.2 : 1}]}>
         <View style={styles.header}>
           <Pressable
             icon="arrow-back"
+            size={25}
             style={{padding: 20}}
             onPress={() => navigation.goBack()}
           />
           <Pressable
-            icon="ellipsis-horizontal"
+            icon={modalVisible ? 'close' : 'ellipsis-horizontal'}
+            size={25}
             style={{padding: 20}}
-            onPress={() => navigation.navigate('PlayerMenu')}
+            onPress={() => setModalVisible(true)}
           />
         </View>
         <View style={styles.cover}>
           <Image
-            source={{
-              uri: `http://localhost:8080/images/${player.track.coverImage}`,
+            source={
+              coverImage !== 'default.png'
+                ? {uri: `http://localhost:8080/images/${coverImage}`}
+                : require('../../assets/images/disc.png')
+            }
+            style={{
+              width: 250,
+              height: 250,
+              borderRadius: 20,
             }}
-            style={{width: 250, height: 250, borderRadius: 20}}
           />
         </View>
         <View style={styles.info}>
           <View style={styles.infoText}>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <Text numberOfLines={1} style={styles.songTitle}>
-                {player.track.title}
+                {title || fileName}
               </Text>
             </ScrollView>
           </View>
           <View style={styles.infoText}>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <Text numberOfLines={1} style={styles.songArtist}>
-                {player.track.artist}
+                {artist || 'Unknown'}
               </Text>
             </ScrollView>
           </View>
         </View>
         <View style={styles.musicControls}>
           <View style={styles.row}>
-            <Text style={{color: '#ccc'}}>
+            <Text
+              style={{fontSize: 14, color: '#ccc', fontFamily: 'san-serif'}}>
               {new Date(position * 1000).toISOString().substring(14, 19)}
             </Text>
             <Slider
@@ -127,29 +165,20 @@ export default function Player() {
               maximumValue={duration}
               thumbTintColor="#2E8B57"
               minimumTrackTintColor="#2E8B57"
-              maximumTrackTintColor="#C1E1C1"
+              maximumTrackTintColor="#ccc"
               onSlidingComplete={async value => await TrackPlayer.seekTo(value)}
             />
-            <Text style={{color: '#ccc'}}>
+            <Text
+              style={{fontSize: 14, color: '#ccc', fontFamily: 'san-serif'}}>
               {new Date((duration - position) * 1000)
                 .toISOString()
                 .substring(14, 19)}
             </Text>
           </View>
-          <View style={[styles.row, {marginBottom: 0}]}>
-            <Selectable
-              icon="heart-outline"
-              alternativeIcon="heart"
-              onPress={() =>
-                ToastAndroid.show('Added to favorites!', ToastAndroid.SHORT)
-              }
-            />
+          <View style={styles.row}>
             <TouchableOpacity onPress={() => navigation.navigate('Playing')}>
               <MCicon name="playlist-music" size={30} color="#ccc" />
             </TouchableOpacity>
-          </View>
-          <View style={styles.row}>
-            <Selectable icon="shuffle" onPress={() => null} />
             <Pressable
               icon="play-skip-back"
               onPress={async () => await TrackPlayer.skipToPrevious()}
@@ -159,7 +188,7 @@ export default function Player() {
                 playbackState === State.Playing ? 'pause-circle' : 'play-circle'
               }
               onPress={() => togglePlayback(playbackState)}
-              size={70}
+              size={80}
             />
             <Pressable
               icon="play-skip-forward"
@@ -182,6 +211,7 @@ export default function Player() {
 export const PlayerWidget = () => {
   const playbackState = usePlaybackState();
   const player = usePlayer();
+  const {title, artist, fileName, coverImage} = player.track || {};
   const navigation = useNavigation();
   const spin = useRef(new Animated.Value(0)).current;
 
@@ -199,12 +229,27 @@ export const PlayerWidget = () => {
     outputRange: ['0deg', '360deg'],
   });
 
-  useTrackPlayerEvents([Event.PlaybackTrackChanged], async event => {
-    if (event.type === Event.PlaybackTrackChanged && event.nextTrack !== null) {
-      const track = await TrackPlayer.getTrack(event.nextTrack);
-      player.setTrack(track);
-    }
-  });
+  useTrackPlayerEvents(
+    [Event.PlaybackTrackChanged, Event.PlaybackQueueEnded],
+    async event => {
+      if (
+        event.type === Event.PlaybackTrackChanged &&
+        event.nextTrack !== undefined
+      ) {
+        const track = await TrackPlayer.getTrack(event.nextTrack);
+        player.setTrack(track);
+      }
+      if (event.type === Event.PlaybackQueueEnded) {
+        await TrackPlayer.stop();
+        player.setTrack({});
+        navigation.navigate('Home');
+      }
+    },
+  );
+
+  useEffect(() => {
+    playbackState === State.Playing ? rotate.start() : rotate.stop();
+  }, [playbackState]);
 
   return !player.track ? null : (
     <TouchableOpacity
@@ -221,9 +266,11 @@ export const PlayerWidget = () => {
           justifyContent: 'center',
         }}>
         <Animated.Image
-          source={{
-            uri: `http://localhost:8080/images/${player.track.coverImage}`,
-          }}
+          source={
+            coverImage !== 'default.png'
+              ? {uri: `http://localhost:8080/images/${coverImage}`}
+              : require('../../assets/images/disc.png')
+          }
           style={{
             width: 50,
             height: 50,
@@ -239,15 +286,13 @@ export const PlayerWidget = () => {
           flexDirection: 'column',
           justifyContent: 'center',
         }}>
-        <Text
-          numberOfLines={1}
-          style={{fontSize: 16, fontWeight: '600', color: '#ccc'}}>
-          {player.track.title}
+        <Text numberOfLines={1} style={{fontSize: 16, color: '#ccc'}}>
+          {title || fileName}
         </Text>
         <Text
           numberOfLines={1}
-          style={{fontSize: 14, fontWeight: '300', color: '#ccc'}}>
-          {player.track.artist}
+          style={{fontSize: 12, fontFamily: 'Gotham Book', color: '#aaa'}}>
+          {artist || 'Unknown'}
         </Text>
       </View>
       <View
@@ -263,10 +308,7 @@ export const PlayerWidget = () => {
         />
         <Pressable
           icon={playbackState === State.Playing ? 'pause' : 'play'}
-          onPress={() => {
-            togglePlayback(playbackState);
-            playbackState === State.Playing ? rotate.stop() : rotate.start();
-          }}
+          onPress={() => togglePlayback(playbackState)}
           size={35}
         />
         <Pressable
@@ -287,11 +329,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   info: {
-    flex: 1,
     alignItems: 'center',
   },
   cover: {
-    flex: 5,
+    flex: 1,
     alignSelf: 'center',
     justifyContent: 'center',
   },
@@ -299,34 +340,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical: '2%',
+    marginVertical: 10,
+    paddingHorizontal: 20,
   },
   infoText: {
     paddingHorizontal: 20,
+    marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   songTitle: {
     textAlign: 'center',
     fontSize: 30,
-    fontWeight: '600',
-    overflow: 'visible',
-    color: '#ccc',
+    color: '#eee',
   },
   songArtist: {
     textAlign: 'center',
-    fontSize: 20,
-    fontWeight: '300',
-    color: '#ccc',
+    fontSize: 18,
+    fontFamily: 'Gotham Book',
+    color: '#aaa',
   },
   musicControls: {
     alignSelf: 'flex-end',
-    paddingHorizontal: 10,
-    marginBottom: 10,
+    marginVertical: 10,
   },
   progressContainer: {
     flexDirection: 'row',
-    marginBottom: '2%',
     justifyContent: 'center',
   },
   progressBar: {
@@ -340,6 +379,6 @@ const styles = StyleSheet.create({
   },
 });
 
-import PlayerMenu from './PlayerMenu';
 import Playing from './Playing';
-export {PlayerMenu, Playing};
+import SongInfo from './SongInfo';
+export {Playing, SongInfo};

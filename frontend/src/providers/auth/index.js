@@ -68,6 +68,7 @@ const AuthProvider = ({children}) => {
   };
   const logout = async () => {
     await AsyncStorage.removeItem('user');
+    ToastAndroid.show('Log out successfully', 2000);
     navigation.navigate('Home');
   };
 

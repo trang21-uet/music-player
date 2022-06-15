@@ -6,7 +6,7 @@ import TrackPlayer from 'react-native-track-player';
 
 const SongList = ({queue}) => {
   return (
-    <ScrollView>
+    <ScrollView overScrollMode="always">
       {queue.length > 0 &&
         queue.map((track, index) => (
           <Song track={track} key={index} queue={queue} index={index} />
@@ -28,23 +28,28 @@ export default function Playing() {
   }, []);
   return (
     <View style={{flex: 1}}>
-      <View style={{flexDirection: 'row'}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderBottomColor: '#333',
+          borderBottomWidth: 1,
+        }}>
         <Pressable
           icon="arrow-back"
-          style={{paddingHorizontal: 20, paddingVertical: 10}}
+          size={25}
+          style={{padding: 15}}
           onPress={() => navigation.goBack()}
         />
+        <Text
+          style={{
+            fontWeight: '600',
+            fontSize: 18,
+            color: '#ccc',
+          }}>
+          Playing
+        </Text>
       </View>
-      <Text
-        style={{
-          marginStart: 10,
-          marginBottom: 20,
-          fontWeight: '600',
-          fontSize: 20,
-          color: '#fff',
-        }}>
-        Playing
-      </Text>
       <SongList queue={queue} />
     </View>
   );

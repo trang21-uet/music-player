@@ -17,7 +17,7 @@ const Tab = forwardRef(({title, onPress}, ref) => {
         <Text
           style={{
             paddingVertical: 15,
-            marginHorizontal: 20,
+            marginHorizontal: 17,
             fontWeight: '600',
             textTransform: 'uppercase',
           }}>
@@ -28,7 +28,7 @@ const Tab = forwardRef(({title, onPress}, ref) => {
   );
 });
 
-const Tabs = ({data, scrollX, onTabPress, style}) => {
+const Tabs = ({data, scrollX, onTabPress}) => {
   const containerRef = useRef();
   const [measures, setMeasures] = useState([]);
 
@@ -53,13 +53,11 @@ const Tabs = ({data, scrollX, onTabPress, style}) => {
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         marginBottom: 10,
-        ...style,
       }}
       ref={containerRef}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        pagingEnabled
         style={{flex: 1}}>
         {data.map((item, index) => (
           <Tab

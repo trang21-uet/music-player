@@ -1,36 +1,17 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import {View, Text, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 
 export default function NavigationBar() {
   const [selected, setSelected] = useState('Home');
+  const props = {selected, setSelected};
   return (
     <View style={styles.container}>
-      <Button
-        selected={selected}
-        setSelected={setSelected}
-        title="Home"
-        icon="home"
-      />
-      <Button
-        selected={selected}
-        setSelected={setSelected}
-        title="Explore"
-        icon="search"
-      />
-      <Button
-        selected={selected}
-        setSelected={setSelected}
-        title="Ranking"
-        icon="bar-chart"
-      />
-      <Button
-        selected={selected}
-        setSelected={setSelected}
-        title="Profile"
-        icon="person"
-      />
+      <Button {...props} title="Home" icon="home" />
+      <Button {...props} title="Explore" icon="search" />
+      <Button {...props} title="Ranking" icon="bar-chart" />
+      <Button {...props} title="Profile" icon="person" />
     </View>
   );
 }
@@ -38,7 +19,7 @@ export default function NavigationBar() {
 const Button = ({title, icon, selected, setSelected}) => {
   const navigation = useNavigation();
   return (
-    <TouchableNativeFeedback
+    <TouchableWithoutFeedback
       onPress={() => {
         navigation.navigate(title);
         setSelected(title);
@@ -46,16 +27,18 @@ const Button = ({title, icon, selected, setSelected}) => {
       <View style={styles.button}>
         <Ionicons
           name={icon}
-          size={20}
+          size={25}
           color={selected === title ? '#2E8B57' : '#ccc'}
         />
-        <View>
-          <Text style={{color: selected === title ? '#2E8B57' : '#ccc'}}>
-            {title}
-          </Text>
-        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selected === title ? '#2E8B57' : '#ccc',
+          }}>
+          {title}
+        </Text>
       </View>
-    </TouchableNativeFeedback>
+    </TouchableWithoutFeedback>
   );
 };
 

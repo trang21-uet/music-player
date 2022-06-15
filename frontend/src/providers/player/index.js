@@ -5,6 +5,7 @@ import TrackPlayer, {
   useTrackPlayerEvents,
   Event,
   State,
+  RepeatMode,
 } from 'react-native-track-player';
 import {Loading, Error} from '../../components';
 
@@ -64,6 +65,7 @@ const PlayerProvider = ({children}) => {
           Capability.Stop,
         ],
       });
+      await TrackPlayer.setRepeatMode(RepeatMode.Queue);
       await TrackPlayer.add(queue);
     } catch (error) {
       console.error(error);
@@ -81,12 +83,14 @@ const PlayerProvider = ({children}) => {
       });
       clearTimeout(id);
       const data = await response.json();
+      // console.info(data);
       if (data.length === 0) {
         setStatus('No song');
       } else {
-        data.forEach(
-          track => (track.url = `http://localhost:8080/songs/${track.url}`),
-        );
+        data.forEach(track => {
+          track.url = `http://localhost:8080/songs/${track.url}`;
+          track.artwork = `http://localhost:8080/images/${track.coverImage}`;
+        });
         setTracks(data);
         setStatus('success');
       }

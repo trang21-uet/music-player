@@ -6,9 +6,10 @@ import {
   Image,
   ImageBackground,
   Dimensions,
+  Share,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../../providers';
 import {RowOption} from '../../../components';
 
@@ -17,29 +18,42 @@ const {width} = Dimensions.get('window');
 export default function Profile() {
   const navigation = useNavigation();
   const auth = useAuth();
+  const isFocused = useIsFocused();
   const [user, setUser] = useState(null);
 
+  const share = async () => {
+    try {
+      const response = await Share.share({
+        message: {abc: '123'},
+      });
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    auth.getUser().then(user => setUser(user));
-  }, []);
+    const getUserInfo = async () => {
+      const info = await auth.getUser();
+      setUser(info);
+    };
+    getUserInfo();
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require('../../../assets/images/default_wallpaper.png')}
-        resizeMode="cover"
-        style={styles.profile}
-        imageStyle={{opacity: 0.2, width}}>
+      <View style={styles.upper}>
         <View style={styles.profilePic}>
           <TouchableNativeFeedback
-            onPress={() => user && navigation.navigate('UserInfo')}>
+            disabled={!user}
+            onPress={() => navigation.navigate('UserInfo')}>
             <Image
               source={
                 user
                   ? {uri: `http://localhost:8080/avatars/${user.avatar}`}
                   : require('../../../assets/images/default.png')
               }
-              style={{height: 80, width: 80, borderRadius: 40}}
+              style={styles.profilePic}
             />
           </TouchableNativeFeedback>
         </View>
@@ -51,37 +65,17 @@ export default function Profile() {
             justifyContent: 'center',
           }}>
           {user ? (
-            <Text style={{fontSize: 18, marginEnd: 5, color: '#ccc'}}>
-              {(user.firstName ? user.firstName : '') +
-                ' ' +
-                (user.lastName ? user.lastName : null)}
+            <Text style={styles.name}>
+              {(user.firstName || '') + ' ' + (user.lastName || null)}
             </Text>
           ) : (
-            <Text
-              style={{
-                fontSize: 18,
-                marginStart: 10,
-              }}>
-              You are not logged in
-            </Text>
+            <Text style={styles.name}>You are not logged in</Text>
           )}
         </View>
-      </ImageBackground>
-      <View style={styles.other}>
-        <RowOption
-          icon="settings-outline"
-          title="Setting"
-          onPress={() => console.info(user)}
-        />
+      </View>
+      <View style={styles.lower}>
         {user ? (
           <>
-            <RowOption
-              icon="musical-notes-outline"
-              title="Your playlists"
-              onPress={() => {
-                navigation.navigate('Playlists');
-              }}
-            />
             <RowOption
               icon="person-outline"
               title="Your infomations"
@@ -95,6 +89,13 @@ export default function Profile() {
               />
             ) : (
               <>
+                <RowOption
+                  icon="musical-notes-outline"
+                  title="Your playlists"
+                  onPress={() => {
+                    navigation.navigate('Playlists');
+                  }}
+                />
                 <RowOption
                   icon="cloud-upload-outline"
                   title="Upload song"
@@ -126,20 +127,27 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
-  profile: {
-    flex: 1,
-    flexDirection: 'row',
+  upper: {
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
+    paddingVertical: 30,
+    marginVertical: 10,
+    borderBottomColor: '#414141',
+    borderBottomWidth: 1,
   },
   profilePic: {
-    width: 80,
-    borderRadius: 40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#fff',
   },
-  other: {
-    flex: 4,
-    width: width,
+  name: {
+    fontSize: 20,
+    color: '#eee',
+    marginTop: 10,
+  },
+  lower: {
+    flex: 1,
     paddingStart: 20,
   },
   row: {
@@ -152,9 +160,17 @@ const styles = StyleSheet.create({
   },
 });
 
-import Setting from './Setting';
 import Upload from './Upload';
 import UserInfo from './UserInfo';
 import ManageSong from './ManageSong';
 import Playlists from './Playlists';
-export {Setting, Upload, UserInfo, ManageSong, Playlists};
+import PlaylistSong from './PlaylistSong';
+import AddSongToPlaylist from './AddSongToPlaylist';
+export {
+  Upload,
+  UserInfo,
+  ManageSong,
+  Playlists,
+  PlaylistSong,
+  AddSongToPlaylist,
+};

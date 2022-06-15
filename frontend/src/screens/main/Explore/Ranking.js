@@ -1,13 +1,14 @@
 import {ScrollView, Text, View} from 'react-native';
 import React from 'react';
 import {usePlayer} from '../../../providers';
-import {SongWithNum} from '../../../components';
+import {Song} from '../../../components';
 
 export default function Ranking() {
   const player = usePlayer();
-  const tracks = [...player.tracks];
+  const tracks = player.tracks.slice(0, 10);
 
   tracks.sort((a, b) => b.numListened - a.numListened);
+
   return (
     <View style={{flex: 1}}>
       <Text
@@ -18,7 +19,7 @@ export default function Ranking() {
           textAlign: 'center',
           fontWeight: '600',
         }}>
-        Most Listened Songs
+        Top Songs
       </Text>
       <ScrollView>
         {tracks.map((track, index) => (
@@ -36,12 +37,15 @@ export default function Ranking() {
               }}>
               {index + 1}
             </Text>
-            <SongWithNum
-              track={track}
-              index={index}
-              key={index}
-              queue={tracks}
-            />
+            <Song track={track} index={index} queue={tracks}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: '#eee',
+                }}>
+                {track.numListened}
+              </Text>
+            </Song>
           </View>
         ))}
       </ScrollView>

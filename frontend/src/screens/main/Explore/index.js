@@ -16,7 +16,7 @@ import React, {
   useState,
 } from 'react';
 import Ranking from './Ranking';
-import {Pressable, Loading, Song, Error, Tabs} from '../../../components';
+import {Pressable, Song, Error, Tabs, Artist, Album} from '../../../components';
 
 const {width} = Dimensions.get('window');
 
@@ -50,9 +50,9 @@ const SearchBar = forwardRef(({onChange}, ref) => {
       <Pressable
         icon="close"
         size={25}
+        disabled={!value}
         color="#000"
         style={{
-          display: value ? 'flex' : 'none',
           position: 'absolute',
           right: 10,
         }}
@@ -83,18 +83,22 @@ const TabScreen = ({query, mode}) => {
 
   const search = async (query, mode) => {
     const url = {
-      all: `getTopSongsByParam?param=${query}&offset=0&limit=10`,
-      name: `getSongsByName?name=${query}&offset=0&limit=10`,
-      artist: `getSongsByArtist?artist=${query}&offset=0&limit=10`,
-      album: `getSongsByAlbum?album=${query}&offset=0&limit=10`,
+      all: `getMapTopSongsByParam?param=${query}&offset=0&limit=5`,
+      name: `getSongsByName?name=${query}&offset=0&limit=20`,
+      artist: `getSongsByArtist?artist=${query}&offset=0&limit=20`,
+      album: `getSongsByAlbum?album=${query}&offset=0&limit=20`,
     };
     try {
-      console.log(url[mode]);
+      // console.log(url[mode]);
       const response = await fetch('http://localhost:8080/songs/' + url[mode]);
       const data = await response.json();
-      data.forEach(
-        track => (track.url = `http://localhost:8080/songs/${track.url}`),
-      );
+      mode !== 'all'
+        ? data.forEach(
+            track => (track.url = `http://localhost:8080/songs/${track.url}`),
+          )
+        : data.name.forEach(
+            track => (track.url = `http://localhost:8080/songs/${track.url}`),
+          );
       setResult(data);
     } catch (error) {
       console.error(error);
@@ -103,20 +107,75 @@ const TabScreen = ({query, mode}) => {
 
   useEffect(() => {
     search(query, mode);
-  }, []);
+  }, [query]);
 
   return (
     <ScrollView>
       <View style={{flex: 1, width}}>
         {result.length === 0 ? (
-          <Error status="No songs found" />
+          <Error status="Nothing found" />
+        ) : mode === 'all' ? (
+          <All data={result} />
         ) : (
-          result.map((track, index) => (
-            <Song track={track} key={index} queue={result} index={index} />
-          ))
+          result.map((track, index) => {
+            if (mode === 'name') {
+              return (
+                <Song track={track} key={index} queue={[track]} index={0} />
+              );
+            } else if (mode === 'artist') {
+              return <Artist key={index} title={track.artist} />;
+            } else if (mode === 'album') {
+              return <Album key={index} title={track.album} />;
+            }
+          })
         )}
       </View>
     </ScrollView>
+  );
+};
+
+const All = data => {
+  // console.info(data.data);
+  const {name, artist, album} = data.data;
+  // console.info({name}, {artist}, {album});
+  // name.forEach(song => console.info(song));
+  return (
+    data && (
+      <View style={{flex: 1}}>
+        {name.length > 0 && (
+          <View style={{marginBottom: 15}}>
+            <Text style={{fontSize: 20, color: '#eee', marginStart: 20}}>
+              Songs
+            </Text>
+            <View>
+              {name.map((song, index) => (
+                <Song track={song} key={index} queue={[song]} index={0} />
+              ))}
+            </View>
+          </View>
+        )}
+        {artist.length > 0 && (
+          <View style={{marginBottom: 15}}>
+            <Text style={{fontSize: 20, color: '#eee', marginStart: 20}}>
+              Artists
+            </Text>
+            {artist.map(({artist}, index) => (
+              <Artist key={index} title={artist} />
+            ))}
+          </View>
+        )}
+        {album.length > 0 && (
+          <View style={{marginBottom: 15}}>
+            <Text style={{fontSize: 20, color: '#eee', marginStart: 20}}>
+              Album
+            </Text>
+            {album.map(({album}, index) => (
+              <Album key={index} title={album} />
+            ))}
+          </View>
+        )}
+      </View>
+    )
   );
 };
 
@@ -144,12 +203,7 @@ const SearchResult = ({query}) => {
         }}>
         Search Result
       </Text>
-      <Tabs
-        data={tabs}
-        scrollX={scrollX}
-        onTabPress={onTabPress}
-        style={{paddingHorizontal: 5}}
-      />
+      <Tabs data={tabs} scrollX={scrollX} onTabPress={onTabPress} />
       <Animated.FlatList
         ref={ref}
         data={tabs}

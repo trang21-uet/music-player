@@ -1,6 +1,5 @@
 import AuthScreen from './auth';
 import MainScreen from './main';
-import Player, {PlayerMenu, Playing} from './Player';
-import {Setting, Playlist} from './main/Profile';
+import Player, {Playing, SongInfo} from './Player';
 
-export {AuthScreen, MainScreen, Player, PlayerMenu, Setting, Playing, Playlist};
+export {AuthScreen, MainScreen, Player, Playing, SongInfo};
