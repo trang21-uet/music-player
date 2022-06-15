@@ -57,16 +57,12 @@ public class UserService {
         user.setFirstName(userRequest.getFirstName());
         user.setLastName(userRequest.getLastName());
         user.setUsername(userRequest.getUsername());
-        if (!user.getAvatar().equals(userRequest.getAvatar())) {
-            try {
-                Path path = this.root.resolve("avatars/" + Objects.requireNonNull(userRequest.getAvatar().getOriginalFilename()));
-                if (!user.getAvatar().equals("default.png"))
-                    Files.delete(this.root.resolve("avatars/" + Objects.requireNonNull(user.getAvatar())));
-                Files.copy(userRequest.getAvatar().getInputStream(), path);
-                user.setAvatar(UriComponentsBuilder.fromPath(userRequest.getAvatar().getOriginalFilename()).build().encode().toString());
-            } catch (Exception e) {
-                user.setAvatar("default.png");
-            }
+        try {
+            Path path = this.root.resolve("avatars/" + Objects.requireNonNull(userRequest.getAvatar().getOriginalFilename()));
+            Files.copy(userRequest.getAvatar().getInputStream(), path);
+            user.setAvatar(UriComponentsBuilder.fromPath(userRequest.getAvatar().getOriginalFilename()).build().encode().toString());
+        } catch (Exception e) {
+            user.setAvatar("default.png");
         }
         return user;
     }
