@@ -152,6 +152,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+          storeFile file('release.keystore')
+          storePassword 'josephjoestar'
+          keyAlias 'music_app'
+          keyPassword 'josephjoestar'
+        }
     }
     buildTypes {
         debug {
@@ -195,6 +201,7 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation 'com.facebook.android:facebook-android-sdk:latest.release'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'
@@ -228,3 +235,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+apply plugin: 'com.google.gms.google-services'
