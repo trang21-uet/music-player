@@ -10,7 +10,6 @@ import {
   ToastAndroid,
   TouchableOpacity,
   Dimensions,
-  KeyboardAvoidingView,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {useAuth} from '../../../providers';

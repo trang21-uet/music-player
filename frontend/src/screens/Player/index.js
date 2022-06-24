@@ -241,7 +241,7 @@ export const PlayerWidget = () => {
       }
       if (event.type === Event.PlaybackQueueEnded) {
         await TrackPlayer.stop();
-        player.setTrack({});
+        player.setTrack(null);
         navigation.navigate('Home');
       }
     },
