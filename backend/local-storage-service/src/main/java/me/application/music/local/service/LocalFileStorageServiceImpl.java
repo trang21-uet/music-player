@@ -160,9 +160,12 @@ public class LocalFileStorageServiceImpl implements ILocalFileStorageService {
     @Override
     public String delete(String id) {
         Song song = songRepository.findById(id);
-        FileSystemUtils.deleteRecursively(Paths.get(this.root + "/songs" + song.getFileName()).toFile());
+        Files.delete(Paths.get(this.root + "/songs/" + song.getFileName()));
+//        FileSystemUtils.deleteRecursively(Paths.get(this.root + "/songs" + song.getFileName()).toFile());
         if (!song.getCoverImage().equals("default.png"))
-            FileSystemUtils.deleteRecursively(Paths.get(this.root + "/covers" + song.getFileName()).toFile());
+            Files.delete(
+                    Paths.get(this.root + "/covers/" + song.getFileName().replaceFirst("[.][^.]+$", "") + ".png"));
+//            FileSystemUtils.deleteRecursively(Paths.get(this.root + "/covers" + song.getFileName()).toFile());
         songRepository.delete(id);
         return "Success!";
     }
