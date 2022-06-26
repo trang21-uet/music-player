@@ -15,7 +15,7 @@ const regionName = {
 
 const Info = ({title, value}) => {
   return (
-    <View style={{width: '100%', marginVertical: 20, marginHorizontal: 20}}>
+    <View style={{width: '100%', marginVertical: 20}}>
       <Text style={{color: '#fff', fontSize: 18, marginBottom: 5}}>
         {title}
       </Text>
@@ -49,10 +49,12 @@ export default function SongInfo() {
         </Text>
       </View>
 
-      <Info title="Song title" value={title || 'Unknown'} />
-      <Info title="Author" value={artist || 'Unknown'} />
-      <Info title="Album" value={album || 'Unknown'} />
-      <Info title="Genre" value={`${regionName[region]} - ${genre}`} />
+      <View style={{flex: 1, paddingHorizontal: 20}}>
+        <Info title="Song title" value={title || 'Unknown'} />
+        <Info title="Author" value={artist || 'Unknown'} />
+        <Info title="Album" value={album || 'Unknown'} />
+        <Info title="Genre" value={`${regionName[region]} - ${genre}`} />
+      </View>
     </View>
   );
 }

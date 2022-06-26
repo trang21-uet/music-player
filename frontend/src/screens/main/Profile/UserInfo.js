@@ -2,9 +2,7 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
   Image,
-  TouchableWithoutFeedback,
   Modal,
   TextInput,
   ToastAndroid,
@@ -92,7 +90,6 @@ const Row = ({title, value, onChange}) => {
                 style={{
                   backgroundColor: '#fff',
                   borderRadius: 10,
-                  height: 45,
                   width: 250,
                   marginVertical: 20,
                   paddingHorizontal: 10,
@@ -102,6 +99,7 @@ const Row = ({title, value, onChange}) => {
                 value={newValue}
                 onChangeText={value => setNewValue(value)}
                 placeholder={title}
+                numberOfLines={1}
                 placeholderTextColor="#999"
                 selectTextOnFocus
                 onSubmitEditing={() => submitRef.current.props.onPress()}
@@ -178,12 +176,14 @@ const Avatar = ({avatar, onChange}) => {
 
   return (
     <View style={[styles.profilePic, {marginVertical: 30}]}>
-      <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => setModalVisible(true)}>
         <Image
           source={{uri: image || `http://localhost:8080/avatars/${avatar}`}}
           style={styles.profilePic}
         />
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
 
       <Modal
         animationType="slide"

@@ -1,11 +1,13 @@
 import {ScrollView, Text, ToastAndroid, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {Error, Pressable, Song, SongWithCheckbox} from '../../../components';
+import {Error, Pressable, Song} from '../../../components';
 import {useNavigation} from '@react-navigation/native';
+import {usePlayer} from '../../../providers';
 
 export default function ManageSong() {
   const [songs, setSongs] = useState([]);
   const navigation = useNavigation();
+  const {getAllSongs} = usePlayer();
 
   const getUnaprrovedSongs = async () => {
     try {
@@ -14,7 +16,7 @@ export default function ManageSong() {
       );
       const data = await response.json();
       setSongs(data);
-      console.info({data});
+      // console.info({data});
     } catch (error) {
       console.error(error);
     }
@@ -28,8 +30,9 @@ export default function ManageSong() {
       },
     );
     const message = await response.text();
-    console.log(message);
+    // console.log(message);
     response.ok && ToastAndroid.show('Approved successfully', 2000);
+    getAllSongs();
     setSongs(songs.filter(item => item.id !== id));
   };
 
@@ -40,7 +43,7 @@ export default function ManageSong() {
       });
       const message = await response.text();
       setSongs(songs.filter(item => item.id !== id));
-      console.info({message});
+      // console.info({message});
       response.ok && ToastAndroid.show('Song removed successfully', 2000);
     } catch (error) {
       console.error(error);

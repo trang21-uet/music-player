@@ -12,7 +12,7 @@ import {Button, Playlist, RowOption} from '../../components';
 import TrackPlayer from 'react-native-track-player';
 import {useNavigation} from '@react-navigation/native';
 
-export default function MenuModal({setModalVisible}) {
+export default function MenuModal({setModalVisible, userRole}) {
   const [playlistModalVisible, setPlaylistModalVisible] = useState(false);
   const [timerModalVisible, setTimerModalVisible] = useState(false);
   const [playlists, setPlaylists] = useState([]);
@@ -20,13 +20,13 @@ export default function MenuModal({setModalVisible}) {
   const navigation = useNavigation();
 
   const getPlaylists = async () => {
+    const {id, token} = await auth.getUser();
     try {
-      const user = await auth.getUser();
       const response = await fetch(
-        `http://localhost:8080/playlist?ownerId=${user.id}`,
+        `http://localhost:8080/playlist?ownerId=${id}`,
         {
           headers: {
-            Authorization: `Bearer ${user.token}`,
+            Authorization: `Bearer ${token}`,
           },
         },
       );
@@ -38,16 +38,18 @@ export default function MenuModal({setModalVisible}) {
   };
 
   useEffect(() => {
-    getPlaylists();
+    userRole === 'user' && getPlaylists();
   }, [playlistModalVisible]);
 
   return (
     <>
-      <PlaylistModal
-        modalVisible={playlistModalVisible}
-        setModalVisible={setPlaylistModalVisible}
-        playlists={playlists}
-      />
+      {userRole === 'user' && (
+        <PlaylistModal
+          modalVisible={playlistModalVisible}
+          setModalVisible={setPlaylistModalVisible}
+          playlists={playlists}
+        />
+      )}
       <TimerModal
         modalVisible={timerModalVisible}
         setModalVisible={setTimerModalVisible}
@@ -67,13 +69,15 @@ export default function MenuModal({setModalVisible}) {
           shadowRadius: 4,
           elevation: 5,
         }}>
-        <RowOption
-          iconSize={25}
-          fontSize={18}
-          icon="add"
-          title="Add to playlist"
-          onPress={() => setPlaylistModalVisible(true)}
-        />
+        {userRole === 'user' && (
+          <RowOption
+            iconSize={25}
+            fontSize={18}
+            icon="add"
+            title="Add to playlist"
+            onPress={() => setPlaylistModalVisible(true)}
+          />
+        )}
         <RowOption
           iconSize={25}
           fontSize={18}

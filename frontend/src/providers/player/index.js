@@ -105,7 +105,8 @@ const PlayerProvider = ({children}) => {
   }, []);
 
   return (
-    <PlayerContext.Provider value={{tracks, track, setTrack, setUpPlayer}}>
+    <PlayerContext.Provider
+      value={{tracks, track, setTrack, setUpPlayer, getAllSongs}}>
       {status === 'loading' && <Loading />}
       {(status === 'Aborted' || status === 'Network request failed') && (
         <Error status={'Network request failed'} />

@@ -79,7 +79,9 @@ export default function Upload() {
           },
         });
         const message = await response.text();
-        console.info(message);
+        // console.info(message);
+        setFile(null);
+        setRegion('Unknown');
         ToastAndroid.show(message, 2000);
       } catch (error) {
         ToastAndroid.show(error.message, 2000);

@@ -16,10 +16,6 @@ import {PlayerWidget} from '../Player';
 
 const Tab = createNativeStackNavigator();
 const {height} = Dimensions.get('window');
-const profileScreenOptions = {
-  headerShown: true,
-  animation: 'slide_from_right',
-};
 
 export default function MainScreen() {
   return (

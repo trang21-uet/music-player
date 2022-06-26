@@ -26,7 +26,7 @@ import Slider from '@react-native-community/slider';
 import {Pressable} from '../../components';
 import MCicon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MenuModal from './MenuModal';
-import {usePlayer} from '../../providers';
+import {useAuth, usePlayer} from '../../providers';
 
 const {width, height} = Dimensions.get('window');
 
@@ -38,11 +38,13 @@ const togglePlayback = async playbackState =>
 export default function Player() {
   const navigation = useNavigation();
   const player = usePlayer();
+  const auth = useAuth();
   const {title, artist, fileName, coverImage} = player.track;
   const {position, duration} = useProgress();
   const playbackState = usePlaybackState();
   const [repeat, setRepeat] = useState('queue');
   const [modalVisible, setModalVisible] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   useTrackPlayerEvents(
     [Event.PlaybackTrackChanged, Event.PlaybackQueueEnded],
@@ -83,6 +85,15 @@ export default function Player() {
     }
   };
 
+  const getUserRole = async () => {
+    const info = await auth.getUser();
+    info && setUserRole(info.role[0]);
+  };
+
+  useEffect(() => {
+    getUserRole();
+  }, []);
+
   return (
     <ImageBackground
       source={
@@ -91,7 +102,7 @@ export default function Player() {
           : require('../../assets/images/disc.png')
       }
       resizeMode="cover"
-      style={{height: height}}
+      style={{flex: 1}}
       imageStyle={{opacity: 0.2}}>
       <Modal
         animationType="slide"
@@ -103,7 +114,7 @@ export default function Player() {
           style={{width, height, justifyContent: 'flex-end'}}
           onPress={() => setModalVisible(false)}>
           <TouchableWithoutFeedback activeOpacity={1}>
-            <MenuModal setModalVisible={setModalVisible} />
+            <MenuModal setModalVisible={setModalVisible} userRole={userRole} />
           </TouchableWithoutFeedback>
         </TouchableOpacity>
       </Modal>
@@ -361,7 +372,6 @@ const styles = StyleSheet.create({
     color: '#aaa',
   },
   musicControls: {
-    alignSelf: 'flex-end',
     marginVertical: 10,
   },
   progressContainer: {
